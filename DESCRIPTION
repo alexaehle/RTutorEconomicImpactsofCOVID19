@@ -1,0 +1,12 @@
+Package: RTutorEconomicImpactsofCOVID19
+Type: Package
+Title: RTutor problem set EconomicImpactsofCOVID19
+Version: 0.1
+Date: 2021-17-08
+Author: Alexandra Ahele
+Maintainer: Alexandra Aehle <alexandra.aehle@web.de>
+Description: RTutor problem set EconomicImpactsofCOVID19
+License: Not yet licensed by the author. The default suggestion for licensing is
+	Problem set content: Creative Commons (CC BY-SA)
+	Package code: GPL >= 2.0
+Depends: RTutor, ggplot2, ggthemes, dplyr, tidyr, choroplethr, tidyverse, lfe

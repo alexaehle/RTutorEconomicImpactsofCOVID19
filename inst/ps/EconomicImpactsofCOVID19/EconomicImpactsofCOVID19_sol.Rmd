@@ -1,0 +1,2227 @@
+# Economic Impacts of COVID-19
+
+
+Author: Alexandra Aehle  
+
+***
+
+#< ignore
+
+```{r "0_1"}
+library(RTutor)
+# Adapt the working directory below and then run setup chunk in RStudio.
+
+setwd("C:/Users/Alexandra/Desktop/Masterarbeit/R Codes/Problemset")
+
+ps.name = "EconomicImpactsofCOVID19"; sol.file = paste0(ps.name,"_sol.Rmd")
+libs = c("ggplot2", "ggthemes", "dplyr", "tidyr", "choroplethr", "tidyverse", "lfe") # character vector of all packages you load in the problem set
+
+name.rmd.chunks(sol.file)
+create.ps(sol.file=sol.file, ps.name=ps.name, libs=libs,addons = "quiz", signif.digits = 10 )
+          
+# The following line directly shows the problem set 
+# in the browser
+show.ps(ps.name,launch.browser=TRUE,
+  auto.save.code=FALSE,sample.solution=FALSE)
+```
+#>
+
+On March 11 in 2020, the World Health Organization declared the COVID-19 outbreak with more than 100.000 confirmed cases all over the world (World Health Organization, 2020). What started with a few cases in China turned out to be the fastest-growing pandemic in history. In late December 2019, the outbreak of an unknown pneumonia was reported in Wuhan a province in China. A seafood wholesale market turned out to be the origin of the disease (Zhou et al., 2020). Within a few months, the virus spread rapidly all over the world. Soon, many states declared a state of emergency. To prevent the virus from spreading, a lot of measures were taken, such as bans on public gatherings, a mandatory stay-at-home policy, the closure of schools and non-essential businesses, and the obligation to wear a mask (Singh et al., 2020).  
+
+By March 2021, more than 124 million people have been infected in 223 different countries with more than 2,5 million confirmed deaths (World Health Organization, 2021). Anxiety is widespread among the world population. One reason for that is health concerns. Many people are afraid of the rapidly spreading disease and the comparatively high death rate. But also financial and economic anxiety is prevailing (Bareket-Bojmel et al., 2020). Policies to prevent the spread of COVID-19 and health concerns about the virus had a significant impact on the economy. Many businesses had to close temporarily and millions of individuals lost their jobs (Chetty et al., 2020).  
+
+You are about to begin an interactive problem set about the economic impacts of COVID-19, which is part of my master thesis at Ulm University. It is created using the package `RTutor` by Sebastian Kranz. The problem set is based on the paper **The Economic Impacts of COVID-19: Evidence from a New Public Database Built Using Private Sector Data** from Chetty et al. (2020). In their paper Chetty et al. create a publicly available database by collecting data from different private companies, in order to examine the impact of the COVID-19 pandemic on the economy in the United States. They study the changes in consumer spending, business revenues, and employment. Besides, the authors are evaluating certain policy responses from the government to COVID-19. In the further description of the problem set, we will refer to it as paper.  
+
+The paper and the data are available on the following websites:  
+
+
+- `Paper`: https://opportunityinsights.org/wp-content/uploads/2020/05/tracker_paper.pdf  
+
+
+- `Data`: https://github.com/OpportunityInsights/EconomicTracker  
+
+
+The problem set is published on the following websites:
+
+
+- `GitHub`: https://github.com/alexaehle/RTutorEconomicImpactsofCOVID19
+
+
+- `Shinyapps`: https://alexaehle.shinyapps.io/RTutorEconomicImpactsOfCOVID19/
+
+
+This problem set is composed of different exercises. These can be solved independently from each other. But I recommend solving them in the given order, to guarantee the best learning outcome. 
+
+The data used for these exercises are mainly taken from the publicly available database of the paper. The status of the data for this problem set is 1 July 2021. For faster and more efficient solving of the tasks, the data has already been preprocessed. More information on the exact processing can be found on the GitHub page of the problem set. Further facts about the data and their origin are provided in an infobox at the respective exercises.
+
+
+Below, I give an overview of the exercises and some information about how to solve the HTML version of the problem set.    
+  
+ 
+## Exercise Content
+
+
+1. Overview: COVID-19 Outbreak in the United States
+
+2. Economic Impacts
+
+  2.1 Consumer Spending
+  
+  2.2 Small Business Revenues
+  
+  2.3 Employment
+  
+3. Differences in Differences: Stimulus Payments to Households
+
+  3.1 Data Preparation and Background
+
+  3.2 DID Estimation with OLS
+  
+4. Conclusion
+
+5. References  
+
+
+You start with a short introduction to the COVID-19 outbreak in the United States in *Exercise 1*. We analyze, how the number of infected people and confirmed deaths changes over time. We also take a look at the number of vaccinations. In *Exercise 2*, the impacts of the crisis on the economy are examined. This exercise is divided into three subsections. In the first section, we look at changes in consumer spending based on debit/credit card expenditure. Differences for high- and low-income households, as well as variations in spending categories, are studied. Section two investigates the impact on small business revenues, to derive in which cities businesses have been hit hardest. We map these changes at the state level. In section three, we look at the employment rate over time. We examine differences for people in high- and low-wage jobs. Also, changes in various job categories are investigated. In *Exercise 3*, we evaluate the effect of the policy measure stimulus payments to households. The Differences in Differences method is used for this purpose. In the first section of the exercise, we prepare the data, learn about the background and calculate the effect of the measure through simple subtraction. In the second section, we then estimate the effect with the OLS regression and control it for fixed effects. Finally, *Exercise 4* concludes by summarizing the results.  
+  
+**How to solve this problem set**
+
+The problem set consists of text and code parts. In each exercise, you get information about the topic and the data. With simple R codes, you analyze the topics by yourself. Therefore, a bunch of tasks are given. You can enter and run the code in chunks. A code chunk must be solved before you can interact with the next one. Code chunks provide different buttons. Only after pressing the `edit` button, you can enter the code in the chunk. The button `run chunk` runs the code, without checking if it is the correct solution. With the `check` button, you can see if your answer is correct. If you do not know the correct answer, you can press `hint` for further advice. With the button `solution`, you get a sample solution. Sometimes parts of the code are already given. You can just fill in the missing parts. On some occasions, the whole code is specified. Just press run and look at the outcome. Besides, you will also encounter some quizzes, where you can test your knowledge and you can collect awards.  
+
+Have fun solving the tasks and learning about the Economic Impacts of COVID-19.  
+
+## Exercise 1 -- Overview: COVID-19 Outbreak in the United States
+
+Before going deeper into economic changes, we start with the crisis itself. This exercise aims to give you a better understanding of the pandemic and its surroundings. We know that the virus spread rapidly all over the world. We now look at the development of COVID-19 in the United States. For this purpose, we use a data set, which provides information on COVID-19 cases, deaths, and testings.
+
+a) In the first part of this exercise, we want to take a closer look at the data, to understand what it contains.
+
+**Task 1.1** Before starting with our investigation, we must load the data. The data frame we use in this exercise is called `COVID - National.rds`. Load the data frame by using the function `readRDS()` and store it in the variable `datCOVID`. Afterward, take a first look at our new data `datCOVID` with the command `head()`.
+
+```{r "2_a"}
+datCOVID = readRDS("COVID - National.rds")
+head(datCOVID)
+```
+
+#< info "COVID - National.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `COVID - National - Daily.csv`
+
+Chetty et al. got this information from the New York Times COVID Tracking Project, which collects daily data about COVID-19 cases, deaths, and testings in the U.S.
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.  
+
+
+- `case_count`: Confirmed COVID-19 cases, seven day moving average
+
+- `death_count`: Confirmed COVID-19 deaths, seven day moving average
+
+- `test_count`: Confirmed COVID-19 tests, seven day moving average
+
+- `new_case_count`: New confirmed COVID-19 cases, seven day moving average
+
+- `new_death_count`: New confirmed COVID-19 deaths, seven day moving average
+
+- `new_test_count`: New confirmed COVID-19 tests, seven day moving average
+
+#>
+
+The function `head()` shows the first six rows of a data frame. For our data `datCOVID`, it displays the number of COVID-19 cases, deaths, and tests from 29 January to 3 February in 2020. We can detect, that there are six columns beside the date. The first three columns contain the overall numbers of confirmed cases, deaths, and tests in the U.S. for the specific date. In the last columns, the number of new daily cases, deaths, and tests are stored. All numbers are based on a seven-day moving average. This means that the numbers of the past seven days are added up for the corresponding day and then are divided by seven. This procedure smooths the data and creates an average value (Lynch/Gore, 2021).
+
+**Task 1.2** To perform more precise analyses, we use certain functions of the package `dplyr`. Load the package `dplyr` with the command `library()`.
+
+```{r "2_a_2"}
+library(dplyr)
+```
+
+#< info "Package dplyr (sample_n, filter, mutate)"
+
+The package `dplyr` is of great use when working with data. It provides simple functions with which data can be manipulated and thus better evaluated. The following are important for the next tasks.
+
+- `sample_n()`: Selects a specified number of random rows from a data set
+
+- `filter()`: Filters data based on an expression  
+
+- `mutate()`:  Adds new variables that are functions of existing variables  
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=dplyr
+
+#>
+
+**Task 1.3** We now want to take another look at our data. There are numberless possibilities in R to access data. Instead of the command `head()`, we can now use the function `sample_n()` from the package `dplyr`. Use `sample_n()` to show ten random rows of `datCOVID`.
+
+```{r "2_a_3"}
+sample_n(datCOVID, 10)
+```
+
+`Sample_n()` is useful to take a look at the data from another point of view. In our case, we get a first impression of the extent to which the numbers have meanwhile grown. Do you have an idea how many overall cases are there in the U.S. by the end of June 2021? If not, just make a guess. 
+
+#< quiz "COVID19 Cases in the US I"
+
+question: By the end of June 2021, how many COVID-19 cases are there in the U.S. as a whole?
+sc:
+    - 100.000 - 1.000.000 
+    - 1.000.000 - 10.000.000 
+    - 10.000.000 - 25.000.000
+    - 25.000.000 - 50.000.000*
+    - more than 50.000.000
+    
+success: Great, your answer is correct!
+failure: Try again.
+
+#>  
+
+
+#< quiz "COVID19 Cases in the US II"
+
+question: By the end of June 2021, what percentage of the population has already been infected with COVID-19?
+sc:
+    - ~1%
+    - ~5%
+    - ~10%*
+    - ~20%
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>  
+
+**Task 1.4** We will now look at the most recent number of cases and deaths in our data frame. Therefore we need to know the latest date in `datCOVID`. Use the function `max()` to find this date in the column `date` of `datCOVID` and store it in the variable `maxdate`. Show `maxdate` afterwards. If you don't know the solution, you can look at the example code to get the first date. 
+
+```{r "2_a_4"}
+#< task_notest
+mindate = min(datCOVID$date)
+mindate
+#>
+maxdate = max(datCOVID$date)
+maxdate
+```
+
+We now know that `datCOVID` contains numbers from 29 January 2020 to 23 June 2021.
+
+**Task 1.5** To get the number of cases and deaths on the latest date, we can use the function `filter()` from the package `dplyr`, which we already loaded before. Filter `datCOVID` by `maxdate` and save the corresponding row in the variable `latestnumbers`. Then show `latestnumbers`.
+
+```{r "2_a_5"}
+latestnumbers = filter(datCOVID, date == maxdate)
+latestnumbers
+```
+
+In June 2021, more than 33 million people in the U.S. have already been infected or suffered from COVID-19. With a population of about 328 million, this represents 10% of the total population. Considering more than half a million deaths, this pandemic has reached extreme dimensions.
+
+b) In the last part, we got a first insight into the data and the dimensions of the pandemic. In part b), we want to visualize the development of the cases and examine the breaking points.
+
+In the next step, we would like to create a graph, that shows the new daily COVID-19 case counts in terms of time. To do this, we use the package `ggplot2`. It offers a wide range of options for visualizing data. With the package `ggthemes`, we can visually enhance our graphs by adding a theme to them.
+
+**Task 1.6** Load the two packages `ggplot2` and `ggthemes` with the function `library()`.
+
+```{r "2_b"}
+library(ggplot2)
+library(ggthemes)
+```
+
+#< info "Package ggplot2/ggthemes 1"
+
+The `ggplot2` package aims to visualize data. The fundamental idea of the package is that a graph can be represented by several layers. The function `ggplot()` starts the basic layer, which can be extended with a "+" by other layers. The ones which we will use in the next tasks will now be explained briefly.
+
+- `ggplot()`: Specifies which data set should be used. With the extension aes() the axes of the graph and certain other aesthetics can be defined
+
+- `geom_line()`: With the command geom_ the type of graph can be set. Geom_line() represents a line chart
+
+- `labs()`: Can be used to add a title and the axis labels to the graph
+
+- `geom_vline()`: Annotates the plot with a vertical line
+
+- `scale_x_date()`: Allows the default scales of the x-axis to be changed for the data type date
+
+- `scale_y_continuous()`: Allows the default scales for continuous y aesthetics to be changed
+
+- `scale_color_manual()`: Is useful to specify your own set of mappings from layers to aesthetic values
+
+- `annotate()`: Useful for adding small annotations such as labels
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggplot2
+
+The package `ggthemes` is useful, for visually enhancing our graphs by adding a theme to them. In this problem set, we always apply `theme_stata()`. It can be added to the graph like a layer by using a "+".
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggthemes
+
+#>
+
+**Task 1.7** With the functions from the package `ggplot2`, we can now create the desired graph. It should show us the new COVID-19 cases per day. The code is already given. It consists of the main function `ggplot()` in which the data basis and the axes are defined. Additional layers are added with the help of other functions. In our example, the functions `geom_line()`, `labs()` , `geom_vline()`, `annotate()` and `scale_x_date()` are used. Run the code and look at the graph.
+
+```{r "2_b_2"}
+#< task
+ggplot(data = datCOVID, aes(x=date, y= new_case_count)) +
+  geom_line(size = 1, color = "red") +
+  labs(title = "New COVID-19 cases per day", x = "Date", y = "New COVID-19 cases")+
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-18")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-04-12")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-06-13")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-07-20")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-09-12")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2021-01-13")), linetype = "dotted") +
+  annotate("text", x = as.Date("2020-04-01"), y = 240000, label = "P1") +
+  annotate("text", x = as.Date("2020-05-12"), y = 240000, label = "P2") +
+  annotate("text", x = as.Date("2020-07-03"), y = 240000, label = "P3") +
+  annotate("text", x = as.Date("2020-08-16"), y = 240000, label = "P4") +
+  annotate("text", x = as.Date("2020-11-10"), y = 240000, label = "P5") +
+  annotate("text", x = as.Date("2021-04-24"), y = 240000, label = "P6") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata() 
+#>
+```
+
+The graph shows us the developments of the daily COVID-19 cases over time in the U.S. It is striking that there are strong fluctuations in the numbers. We want to take a closer look at the six core periods of the pandemic. These are already marked in the graph with `P1`-`P6`.
+
+- `P1`: The first big increase in case numbers was between mid-March and mid-April in 2020. At that time, the first measures were taken to limit the spread of COVID-19. These measures include, among others, stay-at-home policies, the closure of schools and non-essential businesses, and the obligation to wear a mask. Detailed studies on the impact of these nonpharmaceutical interventions (NPIs) are performed in the work of Singh et al.(2020). We will look particularly closely at this period in the next exercises as we want to see how these measures and the prevailing uncertainty and fear have affected the economy.
+
+- `P2`: From mid-April to mid-June, the daily case numbers then decreased slowly, indicating a slight success of the NPIs.
+
+- `P3`: The second wave began in mid-June and lasted until mid-July in 2020. The withdrawal of the NPIs such as the dissolution of the stay-at-home policy and the openings of companies in May and June could be a possible trigger for this (Chetty et al., 2020). 
+
+- `P4`: NPIs were reintroduced in certain states after the sharp increase, which could be a reason for the renewed decline in daily case numbers at the end of July.
+
+- `P5`: Probably most striking is the extreme climb in daily cases in mid-September 2020 to mid-January in 2021, when daily caseloads exceeded 200.000. The United States lost control of the pandemic and became the leading country in the number of infections despite its efforts through NPIs (Singh et al., 2020). 
+
+- `P6`: All the more surprising is therefore the sharp decline in daily case numbers at the beginning of the new year, which may be explained by the start of the vaccinations in December 2020. We will examine the development of the vaccinations in more detail in part d) of this exercise.
+
+In summary, we have seen three phases of decline (`P2`, `P4`, `P6`) and three phases of increase (`P1`, `P3`, `P5`) in the daily caseload. We will refer to these periods several times in the following exercises when analyzing the effects on the economy. To do this, we will show the subdivisions of the phases in the graphs. The three phases with an increase in numbers (`P1`, `P3`, `P5`) are represented by `I1`-`I3` while the phases with a decrease (`P2`, `P4`, `P6`) are represented by `D1`-`D3`.
+
+#< award "COVID-19 Expert Level 1"
+
+Congratulations you have reached the first level of COVID-19 expert. You are now familiar with the development of COVID-19 numbers in the U.S. and are aware of the current status.
+
+#>
+
+c) In part c), we want to look at the daily deaths and put them in context with the cases.
+
+**Task 1.8** For this purpose, we first want to plot the daily deaths over time. Therefore we are once again using the `ggplot()` function. This time only a part of the code is given. In the ggplot command, the axis and the data must still be completed. Fill in the missing parts of the code and run it.
+
+```{r "2_c"}
+#< fill_in
+ ggplot(data = ___, aes(x=___, y= ___)) +
+  geom_line(size = 1, color = "blue") +
+  labs(title = "New COVID-19 deaths per day", x = "Date", y = "New COVID-19 deaths") +
+   geom_vline(xintercept = as.numeric(as.Date("2020-03-18")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-04-12")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-06-13")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-07-20")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-09-12")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2021-01-13")), linetype = "dotted") +
+  annotate("text", x = as.Date("2020-04-01"), y = 3000, label = "I1", color = "red") +
+  annotate("text", x = as.Date("2020-05-12"), y = 3000, label = "D1", color = "green") +
+  annotate("text", x = as.Date("2020-07-03"), y = 3000, label = "I2", color = "red") +
+  annotate("text", x = as.Date("2020-08-16"), y = 3000, label = "D2", colour = "green") +
+  annotate("text", x = as.Date("2020-11-10"), y = 3000, label = "I3", colour = "red") +
+  annotate("text", x = as.Date("2021-04-24"), y = 3000, label = "D3", color = "green") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata() 
+ 
+#>
+
+ ggplot(data = datCOVID, aes(x=date, y= new_death_count)) +
+  geom_line(size = 1, color = "blue") +
+  labs(title = "New COVID-19 deaths per day", x = "Date", y = "New COVID-19 deaths") +
+   geom_vline(xintercept = as.numeric(as.Date("2020-03-18")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-04-12")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-06-13")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-07-20")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-09-12")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2021-01-13")), linetype = "dotted") +
+  annotate("text", x = as.Date("2020-04-01"), y = 3000, label = "I1", color = "red") +
+  annotate("text", x = as.Date("2020-05-12"), y = 3000, label = "D1", color = "green") +
+  annotate("text", x = as.Date("2020-07-03"), y = 3000, label = "I2", color = "red") +
+  annotate("text", x = as.Date("2020-08-16"), y = 3000, label = "D2", colour = "green") +
+  annotate("text", x = as.Date("2020-11-10"), y = 3000, label = "I3", colour = "red") +
+  annotate("text", x = as.Date("2021-04-24"), y = 3000, label = "D3", color = "green") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata() 
+
+```
+
+Looking at the graph, it is striking that there are two time points where a sharp increase in daily deaths occurs. Once between mid-March and mid-April in 2020 and once between mid-November and mid-December in 2020. These upward swings occur precisely in the phases `I1` and `I3` in which the COVID-19 numbers have risen significantly. To better understand the relationship between case numbers and deaths, we compute the death rate. We calculate it as the ratio of overall COVID-19 deceased to COVID-19 infected people like Baud et al. (2020) described it in their paper.
+
+$$
+death\,rate = \frac{COVID-19\,deceased} {COVID-19\,infected}
+$$
+
+**Task 1.9** We want to create a new column for the death rate. Therefore we use the function `mutate()` from the package `dplyr`. With this command, we add the new column `death_rate` to our data `datCOVID`. Fill in the formula for the death rate. 
+
+
+```{r "2_c_2"}
+
+#< fill_in
+datCOVID = mutate(datCOVID, death_rate = ___)
+#>
+
+datCOVID = mutate(datCOVID, death_rate = death_count/case_count)
+
+```
+
+**Task 1.10** To analyze the death rate in more detail, we will plot it over time. For this, we use again the function `ggplot()`. Fill in the missing parts and run the code.
+
+```{r "2_c_3"}
+
+#< fill_in
+ggplot(data = ___, aes(x = ___, y = ___)) +
+  geom_line(size = 1, color = "darkgreen") +
+  labs(title = "Death Rate", x = "Date", y = "Death Rate") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata() 
+#>
+
+ggplot(data = datCOVID, aes(x = date, y = death_rate)) +
+  geom_line(size = 1, color = "darkgreen") +
+  labs(title = "Death Rate", x = "Date", y = "Death Rate") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata() 
+
+```
+
+The graph shows that the death rate has decreased throughout the pandemic, peaking at just under 6% in April 2020. This is not surprising, as at the beginning of the pandemic not much was known about the disease and its treatment. Over time, tests were carried out to see which treatments worked better and a vaccine was developed. This brought the death rate down to a constant level of less than 2%. Striking, however, are the strong fluctuations in the death rate between March and April in 2020. It is questionable whether these reflect reality.
+
+In the U.S., patients are counted as COVID-19 dead if they died of the disease, but also if they died of another disease but were infected with COVID-19. In addition, at the beginning of the pandemic, there was not enough testing to determine the actual number of people infected with COVID-19. It is assumed that the number of people actually infected is significantly higher than the data tells us. Furthermore, there are time delays in reporting which means that deaths are often not reported on the day they actually died. All these factors distort the death rate. For this reason, it should be interpreted with caution (Our World in Data, 2021). The low number of tests in particular could be a factor, why the death rate is making leaps at the beginning of the pandemic.
+
+#< award "COVID-19 Expert Level 2"
+
+Congratulations you have reached the second level of COVID-19 expert. You are now aware of the scale of the pandemic through the number of deaths and know how to calculate and interpret the death rate.
+
+#>
+
+d) In the last part of the exercise, we investigate the COVID-19 vaccinations in the U.S. 
+
+To do this, we first need to load a new data set that contains the figures on vaccinations in the U.S. Since these were not completely collected by the New York Times COVID Tracking Project we use a different data set here. This comes from the database of Mathieu et al. (2021) and is maintained by Our World in Data.
+
+**Task 1.11** Load the file `COVID - Vaccinations.rds` with the command `readRDS()` and store it in the variable `datVacc`. Then show the first six rows of `datVacc `with the command `head()`.
+```{r "2_d"}
+datVacc = readRDS("COVID - Vaccinations.rds")
+head(datVacc)
+```
+
+#< info "COVID - Vaccinations.rds"
+
+Source: Our World in Data (Mathieu et al., 2020)  
+
+It is based on the following file: `owid-covid-data.csv`
+
+The data set has already been pre-processed in several steps. For example, the data has been limited to the United States and columns that are not needed for the problem set have been removed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `new_vaccinations`: New COVID-19 vaccination doses administered
+
+- `total_vaccinations`: Total number of COVID-19 vaccination doses administered
+
+- `people_vaccinated`: Total number of people who received at least one vaccine dose
+
+- `people_fully_vaccinated`: Total number of people who received all doses prescribed by the vaccination protocol
+#>
+
+The time period is the same as for our previous data set `datCOVID`. It ranges from 29 January 2020 to 23 June 2021. As we can see, no values are available for the data at hand. This is because the first vaccination in the U.S. did not take place until 14 December 2020 (BBC, 2020).
+
+We now want the data set to start on 14 December 2020, so that it only considers the period from which the vaccinations took place. To do this, we filter our data set by date.
+
+
+**Task 1.11** Use the function `filter()` from the `dplyr` package in order to limit the data set to the period after the 14 December 2020. Then show the first eight lines of `datVacc` with the command `head()`. The default output value of the function is six lines. To output more, an additional parameter must be passed as an argument.
+
+```{r "2_d_2"}
+datVacc = filter(datVacc, date >= "2020-12-14")
+head(datVacc,8)
+```
+As we can see, the first vaccinations in the data set were registered on 20 December 2020. Before we look at the exact numbers of vaccinations, make a guess about the development of vaccination in the U.S.
+
+#< quiz "Vaccinations in the US"
+
+question:  By the end of June 2021, what percentage of the population has already been vaccinated at least one time?
+sc:
+  
+    - 0%-20%
+    - 20%-40% 
+    - 40%-60%*
+    - 60%-80%
+    
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+More than 40% are already vaccinated at least one time in the U.S. This shows that vaccination is already well advanced. We now want to visualize the daily number of vaccinations. Therefore, we use the `ggplot()` function again.
+
+**Task 1.12** Fill in the missing parts of the code to show the daily number of vaccinations.
+
+```{r "2_d_3"}
+#< fill_in
+ggplot(data = datVacc, aes(x = ___, y = ___)) +
+  geom_line(size = 1, color = "lightblue") +
+  labs(title = "Daily COVID-19 Vaccinations", x = "Date", y = "Vaccinations") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  scale_y_continuous(labels = scales::label_number_si())+
+  theme_stata() 
+#>
+
+ggplot(data = datVacc, aes(x = date, y = new_vaccinations)) +
+  geom_line(size = 1, color = "lightblue") +
+  labs(title = "Daily COVID-19 Vaccinations", x = "Date", y = "Vaccinations") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  scale_y_continuous(labels = scales::label_number_si())+
+  theme_stata() 
+
+```
+
+The number of daily vaccinations varies greatly over time. However, it can be observed that it has increased strongly, especially between March and May 2021. A value of more than four million vaccinations per day is reached. However, the number of vaccinations decreases later on, which could be due to the limited willingness to vaccinate. Daly et al.(2020) estimate that the population's willingness to be vaccinated in October 2020 will be just over 50% of the population. In particular, certain subgroups are unwilling or reluctant to vaccinate. These include people without a degree, females, and black people.
+
+In the next step, we look at the number of partially vaccinated and fully vaccinated people over time. This number is much more interesting than the total number of vaccinations over time, as two vaccine doses are needed for full protection with most vaccines. For this, we create another ggplot.
+
+**Task 1.13** The code to generate the graph is already given. The function `geom_line()` is used twice here to show the two desired values for the partially and fully vaccinated people. Complete the axes for the two functions by adding the correct column names from the table.
+```{r "2_d_4"}
+#< fill_in
+ggplot(data = datVacc, aes(x = date)) +
+  geom_line( aes(y= ___, color = "people_vaccinated"),size = 1) +
+  geom_line( aes(y= ___, color = "people_fully_vaccinated"),size = 1) +
+  scale_colour_manual("", 
+                    breaks = c("people_vaccinated","people_fully_vaccinated" ),
+                    values = c("darkgreen", "orange")) +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  scale_y_continuous(labels = scales::label_number_si())+
+  labs(title = "COVID-19 Vaccinations", x = "Date", y = "People Vaccinated") +
+  theme_stata()
+#>
+
+ggplot(data = datVacc, aes(x = date)) +
+  geom_line( aes(y= people_vaccinated, color = "people_vaccinated"),size = 1) +
+  geom_line( aes(y= people_fully_vaccinated, color = "people_fully_vaccinated"),size = 1) +
+  scale_colour_manual("", 
+                    breaks = c("people_vaccinated","people_fully_vaccinated" ),
+                    values = c("darkgreen", "orange")) +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  scale_y_continuous(labels = scales::label_number_si())+
+  labs(title = "COVID-19 Vaccinations", x = "Date", y = "People Vaccinated") +
+  theme_stata() 
+```
+Already 150 million people in the U.S. are fully vaccinated as of the end of June 2021. Nearly 180 million have received at least their first vaccine dose. This graph also shows the strong initial increase and the rapid decline in the number of daily vaccinations later in the year. 
+What is more interesting, however, are not the absolute numbers of fully and partially vaccinated people, but the percentage of the population, which we estimated at between 40% and 60% at the beginning of the sub-exercise. We want to calculate this in the following. First, we want to get the numbers of fully and partially vaccinated for 23 June 2021, the most recent date in the data set. To do this, we filter our data set by this date. We can use the variable `maxdate` in which we have stored it.
+
+**Task 1.14** Filter the data set `datVacc` by `maxdate` using the function `filter()` from the package `dplyr` and look at the numbers.
+```{r "2_d_5"}
+filter(datVacc, date == maxdate)
+```
+
+We now know the number of partially and fully vaccinated people in the U.S. as of 23 June 2021. Now we can calculate the percentages of the total population.
+
+**Task 1.15** The number of the total population of the U.S. is given and stored in the variable `total_population`. The values for the number of people vaccinated are prevented in the variables `fully_vaccinated` and `partially_vaccinated`. Using these variables, calculate the share of partially and fully vaccinated and store these in the variables `share_fully_vaccinated` and `share_partially_vaccinated`. Then show the two variables.
+
+```{r "2_d_6",signif.digits=10, round.digits=10}
+#< task_notest
+total_population = 328200000
+fully_vaccinated = 150787303
+partially_vaccinated = 177948892
+
+#>
+share_fully_vaccinated = fully_vaccinated/total_population
+share_partially_vaccinated = partially_vaccinated/total_population
+share_fully_vaccinated
+share_partially_vaccinated
+```
+
+The proportion of those fully vaccinated is just under 46%, while the proportion of those partially vaccinated is already around 54%. If we consider the estimate of Daly et al. (2020), this would mean that soon all people who want to be vaccinated will be vaccinated.
+
+#< award "COVID-19 Expert Level 3"
+
+Congratulations you have reached the third and last level of COVID-19 expert. You are now familiar with the developments of the COVID-19 cases and deaths as well as the progress of the vaccinations and thus have an overall picture of the COVID-19 pandemic in the U.S. 
+
+#>
+
+Overall, we have seen how quickly the pandemic has spread in the United States. With more than 33 million infected and nearly half a million deaths, the virus has shaped American life. In this exercise, we have identified the breaking points of the pandemic and in *Exercise 2* we will see how these have affected consumer behavior, small business revenues, and employment.
+
+
+## Exercise 2 -- Economic Impacts
+
+In the last exercise, we looked at the development of the COVID-19 pandemic in the U.S. We now want to use the gained knowledge to investigate, how the rapid spread of COVID-19 has affected the economy. For this purpose, the exercise is divided into three sections. In the first section, we look at the impact on consumer spending. Differences for high and low incomes and variations in spending categories are studied. The second section examines how the pandemic has affected the revenues of small businesses in different states and cities. Finally, in section three, we analyze the changes in employment for different wage levels and job categories.
+
+Before we make more detailed analyses, we want to gain a first impression of the extent of the pandemic's impact on the economy. We can get this insight from the Gross Domestic Product (GDP), as it measures the value of final goods and services produced in the U.S. According to the U.S. Bureau of Economic Analysis (2020), GDP fell by more than 30% from the first to the second quarter of the year. This extreme decline in produced goods and services at the beginning of the pandemic leads us to expect significant developments in the three sections.
+
+The data we use in the following for analysis comes from the public database, that Chetty et al.(2020) constructed for the paper. To build this database, they used anonymized data from private companies and modified it in several steps. First, they identified discontinuous jumps in series, investigated their origin, and reduced their influence. In the next step, fluctuations in the data were adjusted. On the one hand, fluctuations across the week were smoothed by using the 7-day moving average for each value. On the other hand, if necessary, seasonal fluctuations were normalized by dividing each weekly value by its corresponding value in the previous year. To protect the confidentiality of businesses, the data is not provided in absolute numbers, but relative to the mean values in January 2020. More information on the data sets used and what they contain is provided in the following sections.
+
+## Exercise 2.1 -- Consumer Spending
+
+In this section, we want to examine the impacts of the COVID-19 pandemic on consumer spending. To do this, we look at how Americans' credit and debit card spending has changed during the pandemic. Moreover, we will examine the developments for different income levels and merchant categories. Therefore we use the data set `Affinity - National.rds`. 
+
+a) In the first part of this exercise, we take a closer look at the components of the data set and get a first impression of the changes in consumer behavior.
+
+**Task 2.1.1**  Load the data `Affinity - National.rds` using the function `readRDS()` and store it in the variable `datSpending`. Take a closer look at `datSpending` with the command `head()`.
+
+```{r "4_a"}
+datSpending = readRDS("Affinity - National.rds")
+head(datSpending)
+```
+
+#< info "Affinity - National.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Affinity - National - Daily.csv`
+
+Chetty et al. got this information from Affinity Solutions Inc., a company that aggregates consumer credit and debit card spending. They capture nearly 10% of debit and credit card spending in the U.S. 
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `spend_all`: Changes in spending in all merchant category codes
+
+- `spend_all_q1`: Changes in spending by consumers living in ZIP codes with median income in quartile 1
+
+- `spend_all_q2`: Changes in spending by consumers living in ZIP codes with median income in quartile 2
+
+- `spend_all_q3`: Changes in spending by consumers living in ZIP codes with median income in quartile 3
+
+- `spend_all_q4`: Changes in spending by consumers living in ZIP codes with median income in quartile 4
+
+- `spend_aap`: Changes in spending in apparel and accessories
+
+- `spend_acf`: Changes in spending on accommodation and food service
+
+- `spend_aer`: Changes in spending in arts, entertainment, and recreation
+
+- `spend_gen`: Changes in spending in general merchandise stores
+
+- `spend_grf`: Changes in spending in grocery and food store
+
+- `spend_hcs`: Changes in spending in health care and social assistance
+
+- `spend_hic`: Changes in spending in home improvement centers
+
+- `spend_sgh`: Changes in spending on sporting goods and hobby
+
+- `spend_tws`: Changes in spending in transportation and warehousing
+
+#>
+
+The first thing to notice when looking at the data is that there are no absolute numbers. As previously explained, all numbers are relative to the mean values in January 2020 to protect data privacy. The first column contains the date on a daily frequency. The second one shows the total amount of spending from all merchant categories. For columns 3-6, consumers were divided into four different income quartiles, with quartile q4 comprising the consumers with the highest average income and quartile q1 comprising the consumers with the lowest average income. Thus, the four columns show the consumer spending for the four different income quartiles. In columns 7-15, consumer spending is broken down into different categories. In the infobox for the data set, you can see what the abbreviations of the categories mean. For example, the category apparel and accessories is abbreviated with aap.
+
+
+**Task 2.1.2** We now want to find out which period our data set covers. By outputting the first six lines, we could already determine that the start of the period is 29 January 2020. Equivalently, we can now output the last six rows to identify the end of the period. Use the function `tail()` to show the last rows of the data set.
+
+```{r "4_a_2"}
+tail(datSpending)
+```
+
+We worked out, that our data captures the daily debit and credit card spending from 26 January 2020 to 6 June 2021. To see how consumer behavior has changed over this period, we next want to plot the spending in all merchant categories. To do this, we use again the packages `ggplot2` and `ggthemes`.
+
+#< info "Package ggplot2/ggthemes 2"
+
+The `ggplot2` package aims to visualize data. The fundamental idea of the package is that a graph can be represented by several layers. The function `ggplot()` starts the basic layer, which can be extended with a "+" by other layers. The ones which we will use in the next tasks will now be explained briefly.
+
+- `ggplot()`: Specifies which data set should be used. With the extension aes() the axes of the graph and certain other aesthetics can be defined
+
+- `geom_line()`: With the command geom_ the type of graph can be set. Geom_line() represents a line chart
+
+- `labs()`: Can be used to add a title and the axis labels to the graph
+
+- `geom_vline()`: Annotates the plot with a vertical line
+
+- `scale_x_date()`: Allows the default scales of the x-axis to be changed for the data type date
+
+- `scale_color_manual()`: Is useful to specify your own set of mappings from layers to aesthetic values
+
+- `annotate()`: Useful for adding small annotations such as labels
+
+- `facet_wrap()`: Can be used to split a single plot into many related plots
+
+- `guides()`: Is helpful for you to specify the legend or even switch it off completely
+
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggplot2
+
+The package `ggthemes` is useful, for visually enhancing our graphs by adding a theme to them. In this problem set, we always apply `theme_stata()`. It can be added to the graph like a layer by using a "+".
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggthemes
+#>
+
+**Task 2.1.3** Let us now plot the changes in consumer spending relative to January 2020. For this, we use the function `ggplot()` and some additional ones. Part of the code is already provided. Fill in the gaps for the data set and the axes.
+
+```{r "4_a_3"}
+#< fill_in
+ggplot(data = ___, aes(x = ___, y = ___)) +
+  geom_line(size = 1, color = "blue") +
+  labs(title = "Consumer Spending Changes", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+ggplot(data = datSpending, aes(x = date, y = spend_all)) +
+  geom_line(size = 1, color = "blue") +
+  labs(title = "Consumer Spending Changes", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata() 
+```
+
+Looking at the graph, we can see an extreme decline in consumer spending in March at the time the national emergency was declared. This is followed by a slow recovery up to an increase in consumer spending. In order to be able to better correlate the developments in consumer spending with those in the number of COVID-19 cases, we add the phases we investigated in *Exercise 1* to our graph in the next step.
+
+**Task 2.1.4** The code for adding the phases is already completely given. Just run it.
+```{r "4_a_4"}
+#< task_notest
+
+ggplot(data = datSpending, aes(x = date, y = spend_all)) +
+  geom_line(size = 1, color = "blue") +
+  labs(title = "Consumer Spending Changes", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-03-18")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-04-12")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-06-13")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-07-20")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2020-09-12")), linetype = "dotted") +
+  geom_vline(xintercept = as.numeric(as.Date("2021-01-13")), linetype = "dotted") +
+  annotate("text", x = as.Date("2020-04-01"), y = 0.3, label = "I1", color = "red") +
+  annotate("text", x = as.Date("2020-05-12"), y = 0.3, label = "D1", color = "green") +
+  annotate("text", x = as.Date("2020-07-03"), y = 0.3, label = "I2", color = "red") +
+  annotate("text", x = as.Date("2020-08-16"), y = 0.3, label = "D2", colour = "green") +
+  annotate("text", x = as.Date("2020-11-10"), y = 0.3, label = "I3", colour = "red") +
+  annotate("text", x = as.Date("2021-04-24"), y = 0.3, label = "D3", color = "green") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata() 
+
+#>
+```
+
+The most striking thing when looking at the graph is probably the extreme drop in consumer spending in phase `I1`. At that time, spending is more than 30% lower than in January 2020. As a reminder, in this phase, there was the first surge of COVID-19 cases. At the beginning of `D1` in which a decline in cases took place, consumer spending has started to rise. This is not surprising, as at this time companies have reopened and the stay-at-home policy has been abolished. 
+
+It is surprising, however, that in the periods `I2` and `I3` consumer spending did not experience another sharp decline although the numbers were higher compared to the ones in `I1`. There were only minor downward fluctuations in these phases. Towards the end of  `I3`, at the beginning of 2021, consumer spending increased significantly above its baseline level. In the further part of the exercise, we will focus on phases `I1`-`I2`, as we want to find out what has caused the extreme decline in consumer spending.
+
+The first thing that comes to mind as a possible reason for the decline is the policy measures. For example, stay-at-home policies have been enforced throughout the country. In their paper, Alexander and Karger (2020) examine the impact of these measures on consumer spending. They found that the policy measures have led to a decrease in spending in sectors related to mobility.  These include retail and spending on small businesses such as restaurants. Whereas other sectors remained completely unaffected. However, they also discovered that the policy measures were only responsible for about one-fifth of the decline in consumer spending. In the next parts of the exercise, we will look at the changes based on different income groups and merchant categories to better understand the decline.
+
+#< award "Consumer Spending Expert Level 1"
+
+Congratulations you have reached the first level of consumer spending expert. You are now familiar with the development of the consumer spending during the COVID-19 pandemic.
+
+#>
+
+b) In this part of the exercise, we analyze the impact of income on the change in consumer spending.
+
+
+#< info "Package dplyr (filter)"
+
+The package dplyr is of great use when working with data. It provides simple functions with which data can be manipulated and thus better evaluated. The following are important for the next tasks.
+
+- `filter()`: Filters data based on an expression  
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=dplyr
+
+#>
+
+**Task 2.1.5** In the following, we would like to consider only the period in which the strong decline took place. To do this, we first narrow down our data set in terms of time. Use the function `filter()` from the package `dplyr` to limit `datSpending` to data before 1 August 2020. Save the filtered data in the variable `datshort`.
+
+```{r "4_b"}
+datshort = filter(datSpending, date < "2020-08-01")
+```
+
+Before we look at developments of consumer spending for different income groups, make a guess about it. Keep in mind that income quartile 1 includes people with the lowest average income and income quartile 4 includes people with the highest average income.
+
+#< quiz "Spending Changes by Income Quartile"
+
+question: In which income quartile did consumer spending decrease the most?
+sc:
+    - Income quartile 1
+    - Income quartile 2
+    - Income quartile 3
+    - Income quartile 4*
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+**Task 2.1.6** Before visualizing the spending based on the household income, we want to calculate the mean of the changes in spending for the four quartiles by using the function `mean`. Save the corresponding values in the variables `mean_q1`, `mean_q2`, `mean_q3`, and `mean_q4`. Then show all the new assigned variables. The code for the first quartile is already provided. Just complete the code for the three other quartiles.
+
+```{r "4_b_2"}
+#< task_notest
+mean_q1 = mean(datshort$spend_all_q1)
+mean_q1
+#>
+mean_q2 = mean(datshort$spend_all_q2)
+mean_q2
+mean_q3 = mean(datshort$spend_all_q3)
+mean_q3
+mean_q4 = mean(datshort$spend_all_q4)
+mean_q4
+
+```
+
+The averages clearly show that richer households have reduced their consumer spending more than poorer households. There is a difference of almost 8% between the richest and poorest quartile.  
+
+**Task 2.1.7** Before thinking about the reasons for that, we want to visualize these reductions for the four quartiles. In order to illustrate various figures in one graph, multiple `geom_line()` functions can be added. In our case, we need four, one for each income quartile. The main code is already given. Complete the information for the y-axes by entering the correct columns from the table.
+
+```{r "4_b_3",fig.height=5}
+#< fill_in
+ggplot(data = datshort, aes(x = date)) +
+geom_line(aes(y= ___, color = "spend_all_q1"),size=1) +
+geom_line(aes(y= ___, color = "spend_all_q2"),size=1) +
+  geom_line(aes(y= ___, color = "spend_all_q3"),size=1) +
+geom_line(aes(y= ___, color = "spend_all_q4"),size=1) +
+  labs(title = "Consumer Spending Changes by Income Quartile", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+scale_colour_manual("", 
+                    breaks = c("spend_all_q1","spend_all_q2", "spend_all_q3", "spend_all_q4" ),
+                    values = c("darkgreen", "orange", "blue", "red"))+
+scale_x_date(date_breaks = "1 month", date_labels = " %b %y") + 
+theme_stata()
+#>
+
+ggplot(data = datshort, aes(x = date)) +
+geom_line(aes(y= spend_all_q1, color = "spend_all_q1"),size=1) +
+geom_line(aes(y= spend_all_q2, color = "spend_all_q2"),size=1) +
+  geom_line(aes(y= spend_all_q3, color = "spend_all_q3"),size=1) +
+geom_line(aes(y= spend_all_q4, color = "spend_all_q4"),size=1) +
+  labs(title = "Consumer Spending Changes by Income Quartile", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+scale_colour_manual("", 
+                    breaks = c("spend_all_q1","spend_all_q2", "spend_all_q3", "spend_all_q4" ),
+                    values = c("darkgreen", "orange", "blue", "red"))+
+scale_x_date(date_breaks = "1 month", date_labels = " %b %y") + 
+theme_stata()
+```
+
+The graph shows what we have computed in the last exercise. It is clear to see that consumer spending has fallen more among richer households than poorer households. Moreover, the income quartile q1, i.e. the poorest quartile, has already returned to its January baseline level by the end of June 2020, while the richest quartile  q4 is still 10% below its January level. In order to understand why the rich have reduced their spending more, we will differentiate spending according to different categories in the next part of the exercise.
+ 
+
+#< award "Consumer Spending Expert Level 2"
+
+Congratulations you have reached the second level of consumer spending expert. You are now familiar with the changes in consumer spending for different income quartiles.
+
+#>
+
+c) In this part of the exercise, we analyze the changes in spending for different categories. 
+
+First, make a guess which categories have benefited or suffered most from the COVID-19 crisis. 
+
+#< quiz "Spending Changes by Category I"
+
+question: The spending in which category decreased the most between March and April in 2020?
+sc:
+
+- apparel and accessories (aap)
+- accommodation and food service (acf)
+- arts, entertainment, and recreation (aer)*
+- general merchandise stores (gen)
+- grocery and food store (grf)
+- health care and social assistance (hcs)
+- home improvement centers (hic)
+- sporting goods and hobby (sgh)
+- transportation and warehousing (tws)
+
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+#< quiz "Spending Changes by Category II"
+
+question: The spending in which category increased the most between March and April in 2020?
+sc:
+
+- apparel and accessories (aap)
+- accommodation and food service (acf)
+- arts, entertainment, and recreation (aer)
+- general merchandise stores (gen)
+- grocery and food store (grf)*
+- health care and social assistance (hcs)
+- home improvement centers (hic)
+- sporting goods and hobby (sgh)
+- transportation and warehousing (tws)
+
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+We focus more on the reasons for these developments in the following. First, however, let us compare the changes in the different categories. To do this, we want to plot the changes. In the last exercises, we have drawn several lines in the graph by using the function `geom_line()` for each required line. Since we now want to plot nine different categories, we would have to use the function `geom_line()` nine times. We can get around this by transforming our data set into a long format. For this, we need the function `pivot_longer()` from the package `tidyr`.   
+
+**Task 2.1.8** Load the package `tidyr` with the command `library()`.  
+
+```{r "4_c"}
+library(tidyr)
+```
+
+#< info "Package tidyr (pivot_longer)"
+
+The package is useful for preparing data, for example by changing the hierarchy or the shape of a data frame, to facilitate later analysis. We need the following function in the next task.  
+
+- `pivot_longer()`: Lengthens a data set by removing columns and adding rows
+
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=tidyr
+#>
+
+We now want to transform our data set into a longer format. To do this, we convert the nine columns of the different categories into a single column that indicates which category it is. We name this column `category`.  We add another column called `spending` that contains the corresponding spending values for the categories. This lengthens the data frame significantly, as each date now exists once for each of the categories. 
+
+**Task 2.1.9** The main part of the code is already provided. Fill in the two missing gaps for the column names. Then look at the new data frame with the command `head()`. 
+
+```{r "4_c_2"}
+#< fill_in
+datlonger = pivot_longer(datshort[-(2:6)], c(spend_aap, spend_acf, spend_aer, spend_gen, spend_grf, spend_hcs, spend_hic, spend_sgh spend_tws), names_to = ___, values_to = ___)
+___
+#>
+
+datlonger = pivot_longer(datshort[-(2:6)], c(spend_aap, spend_acf, spend_aer, spend_gen, spend_grf, spend_hcs, spend_hic, spend_sgh, spend_tws), names_to = "category", values_to = "spending")
+head(datlonger)
+```
+
+We have now created the new data frame `datlonger`. When we look at it, we see that it appears much more compact but contains nine times as many rows as our old data frame. Such a transformation can often be very useful with regard to the following analysis. In the next task, we will see how this transformation simplifies the graphical representation. We now plot the changes in spending for the nine categories. For this purpose, we use two different methods.  
+
+#< award "Data Manipulator Level 1"
+
+Congratulations you have reached the first level of data manipulator. You have changed the structure of a data set using the function `pivot_longer()`.
+#>
+
+**Task 2.1.10** In the first method, we want to generate the plot by defining the categories as color. This saves us adding several `geom_line()` functions. The code is already given. Fill in the blanks for the axes and the color.
+
+```{r "4_c_3",fig.height=5, fig.width=7}
+#< fill_in
+ggplot(data = datlonger, aes(x  = ___, y = ___, color = ___)) +
+  geom_line(size = 1) +
+  labs(title = "Consumer Spending Changes by Category", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "1 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+ggplot(data = datlonger, aes(x  = date, y = spending, color = category)) +
+  geom_line(size = 1) +
+  labs(title = "Consumer Spending Changes by Category", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "1 month", date_labels = " %b %y") +
+  theme_stata()
+
+```
+
+We see the trends for the nine categories. The first thing that stands out is that consumer spending has not fallen in all categories. However, it is difficult to see in this graph how the individual categories have developed, as the graph has become very unclear due to the number of different lines. For this reason, we will use a different method to visualize the trends. To do this, we divide the graph into nine different ones, one for each category.
+
+**Task 2.1.11** The function `facet_wrap()` allows us to create a separate graph for each category. Complete the given code with the correct application of the function `facet_wrap()`.
+```{r "4_c_4",fig.height=6}
+#< fill_in
+ggplot(data = datlonger, aes(x = date, y = spending, colour = category)) +
+  ___
+  geom_line(size = 1) +
+  guides(color = "none") +
+   labs(title = "Consumer Spending Changes by Category", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+ggplot(data = datlonger, aes(x = date, y = spending, colour = category)) +
+  facet_wrap(~category) +
+  geom_line(size = 1) +
+  guides(color = "none") +
+   labs(title = "Consumer Spending Changes by Category", x = "Date", y = "Consumer Spending Changes Relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata()
+```
+The figure now contains nine different graphs, each one representing one of the categories. The clarity and comparability here are significantly better than in the previous graph. Especially with a high number of different classes that you want to map, it is often better to use the function `facet_wrap()` to split the graph into several. Otherwise, you quickly end up with a graph that is too complex or unclear and therefore unusable for more precise analyses.
+
+We can see in the graph that consumer spending in the four categories apparel and accessories (aap), accommodation and food service (acf), arts, entertainment, and recreation (aer), transportation and warehousing (tws) shows a similar pattern. These categories have been particularly hard hit by the COVID-19 crisis and thus show a significant slump in consumer spending. This is not surprising, as these are categories that have been most constrained by NPIs such as the small business closures and the stay-at-home policy. For example, consumer spending in the arts, entertainment, and recreation (aer) category has fallen by almost 80% compared to the January value, which is presumably mainly due to the restrictions on mobility. If we now look at the decline in the four categories with regard to the developments for the different households, it is noticeable that these are mostly luxury goods that are increasingly consumed by richer households. Since these were consumed significantly less during the stay-at-home policy and the closures of small businesses, it is logical to conclude that the richer households have reduced their consumer spending more than the poorer households.
+
+Conversely, some categories benefited from the pandemic. For example, the grocery and food store (grf) category has experienced a significant upswing. Between March and April, it experienced an increase in consumer spending of more than 50% compared to January. Loxton et al. (2020) explain this increase by the phenomenon of panic buying. As fear and anxiety rise due to the COVID-19 pandemic, consumers begin to select products that they consider essential. These include food such as dried goods and baking supplies, but also grocery products such as toilet paper or soap. Consumers are buying these products in quantities out of fear of shortages. 
+
+We have learned in this exercise that, among other things, government action during the COVID-19 pandemic had a strong impact on the spending behavior of the population. Especially at the beginning of the pandemic in March, spending dropped by more than 30% compared to January. Those by high-income households fell more than that of low-income households. To understand this phenomenon in more detail, we looked at consumer spending for different categories. We recognized that especially that on luxury goods has decreased and that on basic goods like food and grocery products has even increased, which explains the varying decrease of the spending for the different households. In the next exercise, we will examine how the decline in consumer spending has affected small businesses.
+
+#< award "Consumer Spending Expert Level 3"
+
+Congratulations you have reached the third and last level of consumer spending expert. You are now familiar with the changes in consumer spending. You additionally know how these have developed in different income groups and merchant categories.
+
+#>
+
+## Exercise 2.2 -- Small Business Revenues
+
+In this section, we examine how the decline in consumer spending has affected the revenues of small businesses. Therefore, we use data from various credit card processors on small business revenues and transactions. The data is available at different levels. We first look at the changes in revenues at the national level before going deeper into the state and city levels.  
+
+a) In the first part of this exercise, we briefly look at the changes in small business revenues. Two predefined codes are given for this purpose. The first code shows the graphical changes in small business revenues from 10 January 2020 to 21 June 2021. The second code generates a graph that differentiates between firms placed in areas with low, middle, and high average income. 
+
+We have learned from the last exercise that consumer spending has declined dramatically. Before looking at the graphs, make a guess how this has impacted the profits of small companies.
+
+#< quiz "Changes in Small Business Revenues I"
+
+question: Have small business revenues decreased or increased due to the decline in consumer spending?
+sc:
+    - decreased*
+    - increased
+  
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+#< quiz "Changes in Small Business Revenues II"
+
+question: In which areas were companies hit harder by the decline in consumer spending?
+sc:
+   - areas with high median income*
+   - areas with low median income
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+#< info "Package ggplot2/ggthemes 3"
+
+The `ggplot2` package aims to visualize data. The fundamental idea of the package is that a graph can be represented by several layers. The function `ggplot()` starts the basic layer, which can be extended with a "+" by other layers. The ones which we will use in the next tasks will now be explained briefly.
+
+- `ggplot()`: Specifies which data set should be used. With the extension aes() the axes of the graph and certain other aesthetics can be defined
+
+- `geom_line()`: With the command geom_ the type of graph can be set. Geom_line() represents a line chart
+
+- `labs()`: Can be used to add a title and the axis labels to the graph
+
+- `geom_vline()`: Annotates the plot with a vertical line
+
+- `scale_x_date()`: Allows the default scales of the x-axis to be changed for the data type date
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggplot2
+
+The package `ggthemes` is useful, for visually enhancing our graphs by adding a theme to them. In this problem set, we always apply `theme_stata()`. It can be added to the graph like a layer by using a "+".
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggthemes
+#>
+
+**Task 2.2.1** Execute the following code and look at the generated graph. The code first loads the file `Womply - National.rds`, which contains data on business revenues in a long format. Finally, the graph is created using the `ggplot()` function.
+```{r "5_a"}
+#< task_notest
+datNational = readRDS("Womply - National.rds")
+
+ggplot(data = datNational, aes(x = date, y = revenue_all)) +
+  geom_line(size = 1, colour = "darkgreen") +
+   labs(title = "Changes in Small Business Revenues", x = "Date", y = "Changes in Small Business Revenues relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+```
+
+#< info "Womply - National.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Womply - National - Daily.csv`
+
+Chetty et al. got this information from Womply, a company that collects data from various credit card processors on small business revenues and transactions to provide analytic insights.
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `revenue_all`: Percent change in net revenue for small businesses
+
+- `income_quartile`: Specifies if the businesses have their seat in ZIP codes with low/median/high income
+
+- `revenue`: Percent change in net revenue for small businesses (based on the income quartile of the area they have their seat in)
+#>
+
+The revenues of small firms fell sharply at the end of March 2020. In fact, by nearly 50%. This can be explained by the downturn in consumer spending, which we examined in the last exercise. If people are staying at home more, spending less money on small businesses such as restaurants or clothing stores, it is a natural consequence that the revenues of these businesses decrease. In April and May 2020, revenues experienced a small upswing and remained at a level 20% lower than in January 2020. However, this upswing was short-lived, as revenues returned to a 30% lower level by August 2020. This recovery could be explained by the removal of the NPIs, as companies were allowed to reopen and people had more opportunities to use the services of small companies again due to the abolition of the stay-at-home policy.
+
+In the last exercise, we pointed out that households with a higher average income reduced their spending more than households with a lower average income. We now want to see how this affects the revenues of small firms located in higher and lower income areas.
+ 
+**Task 2.2.2** Look at the following code. We use it to create a graph that shows the changes in revenues for companies placed in areas with low, middle, and high median income. Run the code and look at the outcome.
+
+```{r "5_a_2",fig.height=5.5, fig.width=7}
+#< task_notest
+ggplot(data = datNational, aes(x = date, y = revenue, colour = income_quartile)) +
+  geom_line(size = 1) +
+   labs(title = "Changes in Small Business Revenues by Area Income Quartile", x = "Date", y = "Changes in Small Business Revenues relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "4 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+```
+
+It is noticeable that companies located in areas with a high median income are hit harder. Their revenues decreased by almost 10% more than those of firms located in areas with lower median income. This is not surprising, as richer people have reduced their consumer spending much more than poorer people, leading to a stronger decline of revenues in areas with higher average incomes. Besides the recovery to January levels is worse in the richer areas than in the poorer areas. These findings are in line with those we discovered in the last exercise about consumer spending. 
+
+#< award "Business Revenues Expert Level 1"
+
+Congratulations you have reached the first level of business revenues expert. You are familiar with the national developments of small business revenues and you know in which income areas they are most affected.
+#>
+
+b) In this part of the exercise we examine in which cities the companies are most affected. For this purpose, we use the data set `Womply - City - Daily.rds`, which contains the changes in business revenues for major cities in the U.S.
+
+**Task 2.2.3** Load the data set `Womply - City.rds` by using the function `readRDS()` and store it in the variable `datCity`. Then look at the first rows with the command `head()`.
+
+```{r "5_b"}
+datCity = readRDS("Womply - City.rds")
+head(datCity)
+```
+
+#< info "Womply - City.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Womply - City - Daily.csv`
+
+Chetty et al. got this information from Womply, a company that collects data from various credit card processors on small business revenues and transactions to provide analytic insights.
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `cityid`: Indicates the id of the city from which the data originates
+
+- `revenue_all`: Percent change in net revenue for small businesses
+
+#>
+
+As you can see, the data only contains three columns. The first contains the date, the second indicates the city id for the respective city and the third shows the changes in business revenues compared to January 2020. We now want to find out which cities have been hit the hardest. For this we need certain functions of the package `dplyr`.
+
+#< info "Package dplyr (filter, group_by, summarize, arrange, pipe operator)"
+
+The package dplyr is of great use when working with data. It provides simple functions with which data can be manipulated and thus better evaluated. The following are important for the next tasks.
+
+- `filter()`: Filters data based on an expression  
+
+- `group_by()`: Takes an existing table and converts it into a grouped table where operations are performed by the specified group
+
+- `summarize()`: Reduces a data frame to a summary of one vector or value, often used in combination with `group_by()`
+
+- `arrange()`:  Orders the rows of a data frame
+
+- `Pipe operator (%>%)`: Used to express a sequence of multiple operations. Passes a value, or the result of an expression, into the next function call/expression. This can greatly simplify code and make operations more intuitive. It is indicated by the following character `%>%`.
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=dplyr
+
+#>
+
+Before we analyze the data in more detail, let us limit the time range to the period between 25 March 2020 and 14 April 2020. Since this is the period in which the sharp drop in revenues took place.
+
+**Task 2.2.4** We use the function `filter()` from the package `dplyr`, to limit the time range on the specified date. Complete the given code.
+```{r "5_b_2"}
+#< fill_in
+datCity = filter(datCity, date >= ___ & date <= ___ )
+#>
+
+datCity = filter(datCity, date >= "2020-03-25" & date <= "2020-04-14" )
+
+```
+
+We now calculate the average change in revenues for each city over the period and store it in the new column `revenue_loss`. We want to get a table that only contains the `city_id` and the corresponding `revenue_loss`. To do this, we need the functions `group_by()` and `summarize()`. Then we sort the data in ascending order by the revenue loss using the function `arrange()`.
+
+**Task 2.2.5** Fill in the missing parts of the code to create the above-described table.
+```{r "5_b_3"}
+#< fill_in
+Revenueloss = datCity %>% 
+  group_by(___) %>%
+  summarize(revenue_loss = mean(___)) %>%
+  arrange(___)
+#>
+
+Revenueloss = datCity %>% 
+  group_by(cityid) %>%
+  summarize(revenue_loss = mean(revenue_all)) %>%
+  arrange(revenue_loss)
+```
+
+**Task 2.2.6** Use the command `head()` to take a closer look at the table `Revenueloss`, you have just created.
+```{r "5_b_4"}
+head(Revenueloss)
+```
+
+We now know the six city ids where small businesses have been hit hardest by the COVID-19 pandemic. Revenues have fallen by more than 70% in certain areas. However, we do not know which city id stands for which city. We want to change this in the next step by adding the corresponding city names and states. Therefore, we need the file `GeoIDs - City.rds` which contains the needed information about the context of city id and city name.
+
+#< award "Data Manipulator Level 2"
+
+Congratulations you have reached the second level of data manipulator. You have changed the structure of a data set using a combination of `group_by()`, `summarize()` and `arrange()`.
+#>
+
+**Task 2.2.7** Load the file `GeoIDs - City.rds` by using the command `readRDS()` and look at it with `head()`.
+```{r "5_b_5"}
+GeoIDs = readRDS("GeoIDs - City.rds")
+head(GeoIDs)
+```
+
+#< info "GeoIDs - City.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `GeoIDs - City.csv`
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `city`: Indicates the id of the city 
+
+- `cityname`: Specifies the corresponding city name for the id
+
+- `statename`: Gives the state in which the city is located
+
+#>
+
+We now have the desired information on the city names and the corresponding states. For example, the city with id = 1 represents Los Angeles, located in California.
+
+We want to merge our two tables `Revenueloss` and `GeoIDs` in the next step. To do this, we use a left join. With the help of a left join, you can match two tables. To do this, you first have to decide which table you want to keep complete. In our case, this is the table `Revenueloss`. It represents the left table. All matching entries of the right table are then added to the left table as new columns. However, this only works if both tables have a common column that you can join on. In our case, this condition is met because both tables contain the column `cityid`.
+
+**Task 2.2.8** Match the two tables `Revenueloss` and `GeoIDs` by using the function `left_join()`. The `left_join()` function takes two arguments. First, the table that is to be kept, and second, the table that is to be added. Save the corresponding table in the variable `Revenueloss`. Then show `Revenueloss` by using `head()`.
+```{r "5_b_6"}
+Revenueloss = left_join(Revenueloss, GeoIDs)
+head(Revenueloss)
+```
+
+It may seem a little strange to you that you did not have to specify in the code which column to join on. However, if you look at the console, you should notice that it specifies which column was used for the join. In our case, it says: Joining, by = "cityid". The algorithm has thus identified the correct column itself.
+
+We have generated an overview that shows us in which cities the small companies were most affected during the start of the COVID-19 pandemic. In the first place is New Orleans, with an about 80% drop in business revenues. This ranking is surprising, as New Orleans is a city with a rather low median income, so one might expect a more moderate decline, thinking back on the results of the last part of the exercise. Otherwise, the top ten include many cities with high median incomes in the U.S., such as Washington, San Francisco, New York, and Boston (Statista, 2021). These cities are expected to experience a high decline as their residents have reduced their consumption expenditure more on average.
+
+#< award "Business Revenues Expert Level 2"
+
+Congratulations you have reached the second level of business revenues expert. You know which cites are most affected by the COVID-19 pandemic.
+#>
+
+c)  In the last part of this exercise, we examine the change in revenues at the state level. To do this, we plot the changes on a map. We first need to load the correct data set that indicates the business revenues at the state level. 
+
+**Task 2.2.9** Load the data frame `Womply - State.rds` with the function `readRDS()` and look at the first lines with `head()`.
+
+```{r "5_c"}
+datState = readRDS("Womply - State.rds")
+head(datState)
+```
+
+#< info "Womply - State.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Womply - State - Daily.csv`
+
+Chetty et al. got this information from Womply, a company that collects data from various credit card processors on small business revenues and transactions to provide analytic insights.
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `statefips`: Indicates the id of the state from which the data originates
+
+- `statemame`: Specifies the corresponding state name for the statefips
+
+- `revenue_all`: Percent change in net revenue for small businesses
+
+#>
+
+
+The data set consists of four columns. These express how large the change in business revenues was for the different states in the U.S. Thus the step we did in the last task with the left join is already done. Like in the previous part of the exercise, the time range has been narrowed down to the starting period of the COVID-19 pandemic.  
+
+**Task 2.2.10** Similar to *Task 2.2.5*, we now want to calculate the average change in business revenues for each state over the period. To do this, we again use the functions `group_by()` and `summarize()` from the package `dplyr`. Complete the code to get the desired result.
+
+```{r "5_c_2"}
+#< fill_in
+Revenueloss_state= datState %>% 
+  group_by(___) %>%
+  summarize(mean_revenue_loss = mean(___))
+head(Revenueloss_state)
+#>
+Revenueloss_state= datState %>% 
+  group_by(statename) %>%
+  summarize(mean_revenue_loss = mean(revenue_all))
+head(Revenueloss_state)
+```
+
+As a result, we get a table showing for each state of the U.S. the average change in business revenues over the period. We now want to illustrate these average changes in a state choropleth. There are different ways to create a choropleth in R. We use the package `choroplethr` for this purpose.  
+
+**Task 2.2.11** Load the package `choroplethr` with the command `library()`.
+```{r "5_c_3"}
+library(choroplethr)
+```
+
+#< info "Package choroplethr"
+
+A choropleth is a thematic map where geographic regions are colored/shaded according to a chosen metric. The package `choroplethr` simplifies the process of creating such a map in R. On that basis, it provides functions for the creation of various choropleths. It also offers a lot of interesting data on different topics to create them. We use the following function in this exercise.
+
+- `state_choropleth()`: Creates a state choropleth based on a data set. This data set must consist of the column region and the column value. The column region has an entry for each state of the U.S. and the column value contains the value of the state for the desired metric
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=choroplethr 
+#>
+
+We have already created the data set `Revenueloss_state` for the state choropleth. However, our two columns do not have the names `region`, and `value` which are required for the use. Therefore, we rename them in the next step.
+
+**Task 2.2.12** Use the function `rename()` from the package `dplyr` to rename the two columns in our data set `Revenueloss_state` to `region` and `value`.
+
+```{r "5_c_4"}
+#< fill_in
+Revenueloss_renamed = Revenueloss_state %>% 
+  rename(region = ___, value = ___)
+#>
+Revenueloss_renamed = Revenueloss_state %>% 
+  rename(region = statename, value = mean_revenue_loss)
+```
+
+We are now ready to create a choropleth. We use the function `state_choropleth` from the package `choroplethr` for this purpose.
+
+**Task 2.2.13** The correct code to generate it is already given. It specifies the data, the title, the legend, and the number of colors to be used for shaping the map. Execute the code, look at the map and answer the following questions.
+
+```{r "5_c_5"}
+#< task
+state_choropleth(Revenueloss_renamed,
+                  title = "Change in Small Business Revenues",
+                  legend = "Revenue loss",
+                  num_colors = 5)
+#>
+```
+
+#< quiz "Changes in Small Business Revenues States I"
+
+question: In which area have revenues dropped the most?
+sc:
+   - Northeast*
+   - Midwest
+   - South
+   - West
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+#< quiz "Changes in Small Business Revenues States II"
+
+question: In which area did revenues decrease the least?
+sc:
+   - Northeast
+   - Midwest*
+   - South
+   - West
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+In the map, particularly affected areas with a strong decline in revenues are marked with a light blue to white color, while the less affected areas are marked blue to dark blue. Especially the areas in the Midwest are rather dark blue with only occasional lighter parts, which signifies a maximum revenue loss of about 50% compared to January. In the Northeast, on the opposite, the areas are all very bright, which signifies a revenue loss of about 50-70%. These findings are in line with our assumptions that in areas with higher average incomes, revenues have fallen more sharply. According to a study by the Economic Policy Institute (Sommeiller et al., 2016), incomes are highest on average in the Northeast, while average incomes are lowest in the Midwest. If we take a closer look at the hardest-hit states, we notice that some of them were on our list of most affected cities, such as Louisiana (LA), New York (NY), Massachusetts (MA), or Pennsylvania (PA).
+
+In this exercise, we have seen how strongly the decline in consumer spending and thus the COVID-19 pandemic has affected the revenues of small businesses. Revenues fell by around 50% in March 2020. We analyzed which cities and states were particularly affected and concluded that areas with higher average incomes experienced a greater decline in revenues than areas with lower average incomes. This is consistent with our findings from *Exercise 2.1*, where we observed that richer households reduced their consumer spending more than poorer households.
+
+#< award "Business Revenues Expert Level 3"
+
+Congratulations you have reached the third and last level of business revenues expert. You are familiar with the developments of the business revenues of small businesses and you know in which states, cities in the U.S. they were most affected by the COVID-19 pandemic.
+#>
+
+## Exercise 2.3 -- Employment
+
+
+In this last part of *Exercise 2*, we examine how the drop in consumer spending and the associated decline in small business revenues have affected employment. To do this, we first look at a combined data set about employment and earnings to see how the employment level has changed in general and broken down by different income groups and job categories. Then, using a second set of data about job postings on online boards, we look at how the job supply has developed in various job categories.
+
+a) In the first part of the exercise, we examine how employment in the U.S. has changed during the COVID-19 pandemic.
+
+**Task 2.3.1** To do this, first load the data set `Employment - Income.rds` with the function `readRDS()` and store the data in the variable `datEmp`. Then look at `datEmp` with the function `head()`.
+
+```{r "6_a"}
+datEmp = readRDS("Employment - Income.rds")
+head(datEmp)
+```
+
+#< info "Employment - Income.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Employment - National - Daily.csv`
+
+Chetty et al. created this data set by combining data from four different sources: Paychex, Intuit, Earnin, and Kronos. They provide information on the worker level, payroll, and timesheets. All this data comes from rather small to medium-sized enterprises.
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `emp`: Change in employment level for all workers
+
+- `income_quartile`: Specifies the income quartile of the employees  
+
+- `employment`: Change in employment level for the corresponding income quartile
+
+
+#>
+
+As we can see from the small excerpt, the data set contains the numbers for the changes in employment on a daily basis. The employment level is given for all workers in the column `emp`. Additionally, it is disaggregated by income quartile in the columns `income_quartile` and `employment`. The three income quartiles are defined as follows:
+
+- `emp_combined_inchigh`: Employment level for workers with incomes over 60.000\$  
+
+- `emp_combined_incmiddle`: Employment level for workers with incomes from 27.000\$ to 60.000\$ 
+
+- `emp_combined_inclow`: Employment level for workers with incomes under 27.000\$
+
+In the next step, we illustrate the changes in employment level graphically. To do this, we first look at the overall changes in employment. Therefore we use the package `ggplot2` again.
+
+#< info "Package ggplot2/ggthemes 4"
+
+The `ggplot2` package aims to visualize data. The fundamental idea of the package is that a graph can be represented by several layers. The function `ggplot()` starts the basic layer, which can be extended with a "+" by other layers. The ones which we will use in the next tasks will now be explained briefly.
+
+- `ggplot()`: Specifies which data set should be used. With the extension aes() the axes of the graph and certain other aesthetics can be defined
+
+- `geom_line()`: With the command geom_ the type of graph can be set. Geom_line() represents a line chart
+
+- `labs()`: Can be used to add a title and the axis labels to the graph
+
+- `scale_x_date()`: Allows the default scales of the x-axis to be changed for the data type date
+
+- `facet_wrap()`: Can be used to split a single plot into many related plots
+
+- `guides()`: Is helpful for you to specify the legend or even switch it off completely
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggplot2
+
+The package `ggthemes` is useful, for visually enhancing our graphs by adding a theme to them. In this problem set, we always apply `theme_stata()`. It can be added to the graph like a layer by using a "+".
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggthemes
+#>
+
+
+**Task 2.3.2** Complete the code by entering the data and axes to create a graph showing the changes in employment over time.
+
+```{r "6_a_2"}
+#< fill_in
+ggplot(___, aes(x = ___, y= ___))+
+  geom_line(size = 1, colour = "darkgreen") +
+  labs(title = "Changes in Employment", x = "Date", y = "Changes in Employment relative to January 2020 (%)") +
+   scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+ggplot(datEmp, aes(x = date, y= emp))+
+  geom_line(size = 1, colour = "darkgreen") +
+  labs(title = "Changes in Employment", x = "Date", y = "Changes in Employment relative to January 2020 (%)") +
+   scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata()
+```
+
+As one might expect from the downturn in consumer spending and the associated drop in revenues of small businesses, the graph shows a sharp decrease in employment. It is down over 20% compared to January. In May, employment finally rises again significantly. However, it does not return to its baseline level until the end of 2020. It stagnates at a level that is between 5% and 10% lower than that in January. However, in the further course of 2021, it continues to rise towards its normal level.
+
+#< award "Employment Expert Level 1"
+
+Congratulations you have reached the first level of employment expert. You are familiar with the developments of the employment during the COVID-19 pandemic.
+#>
+
+b) In the second part of this exercise, we look at the changes in employment for different income groups and categories. First, make a guess about the developments based on the results of the last exercises.
+
+#< quiz "Changes in Employment I"
+
+question: Between March and April 2020, for which income quartile have employment rates decreased the most?
+sc:
+   - low-income quartile*
+   - medium-income quartile
+   - high-income quartile
+ 
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+#< quiz "Changes in Employment II"
+
+question: Between March and April 2020, for which category have employment rates declined the most?
+sc:
+   - trade, transportation, and utilities
+   - professional and business services
+   - education and health services
+   - leisure and hospitality*
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+We will first look at the developments for the different income quartiles, as these are included in our data set `datEmp`.
+
+**Task 2.3.3** For this purpose, we use the function `ggplot()`. Complete the given code to generate a graph that shows the changes in employment for each income quartile.
+```{r "6_b"}
+#< fill_in
+ggplot(data = ___, aes(x = ___, y = ___, colour = ___)) +
+  geom_line(size = 1) +
+  labs(title = "Changes in Employment by Income Quartile", x = "Date", y = "Changes in Employment relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+
+ggplot(data = datEmp, aes(x = date, y = employment, colour = income_quartile)) +
+  geom_line(size = 1) +
+  labs(title = "Changes in Employment by Income Quartile", x = "Date", y = "Changes in Employment relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "2 month", date_labels = " %b %y") +
+  theme_stata()
+```
+
+The graph shows massive differences in employment levels for the three income quartiles over time. Employment for high-wage workers has only fallen by about 10%. By October 2020 it has already returned to its baseline level and even further thereafter. Low-wage workers, meanwhile, have experienced a drop in employment of almost 40% and were also incapable of achieving a full recovery in the further course of the crisis. Their employment level remains 20% below the baseline level. 
+
+Cajner et al.(2020) have investigated the reasons for this extreme gap in employment levels for different income quartiles. They discovered that a small part of it can be attributed to business characteristics like business size and industry as low-wage workers are more likely to work in small firms and industries like restaurants, leisure services, or retail. As we have seen in *Exercise 2.2*, these businesses have had to experience a strong downturn in their revenues, which must have led to some layoffs. Another explanation for this gap in employment levels is the age of the workers. Younger workers usually earn less because they have not been with a company as long as older workers and thus tend to be dismissed more quickly. 
+
+To examine the developments in employment for different categories, we first need to load a new data set.
+
+**Task 2.3.4** Load the file `Employment - Categories.rds` using `readRDS()` and store it in the variable `datEmpCategories`. Look at it with `head()`.
+
+```{r "6_b_2"}
+datEmpCategories = readRDS("Employment - Categories.rds")
+head(datEmpCategories)
+```
+
+#< info "Employment - Categories.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Employment - National - Daily.csv`
+
+Chetty et al. created this data set by combining data from four different sources: Paychex, Intuit, Earnin, and Kronos. They provide information on the worker level, payroll, and timesheets. All this data comes from rather small to medium-sized enterprises.
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `category`: Specifies the category in which the employees are working
+
+- `employment`: Change in employment level for the corresponding category
+#>
+
+`DatEmpCategories` contains information on the development of the employment level for the four different categories: 
+
+- trade, transportation, and utilities
+- professional and business services
+- education and health services
+- leisure and hospitality
+
+**Task 2.3.5** Complete the code to generate a ggplot showing the developments of the employment level. Using the `facet_wrap()` the ggplot should be divided into four different graphs representing the job categories.
+
+```{r "6_b_3"}
+#< fill_in
+ggplot(data = ___, aes(x = ___, y = ___, colour = ___)) +
+  facet_wrap(~___) +
+  geom_line(size = 1) +
+  guides(color = "none") +
+  labs(title = "Changes in Employment by Category", x = "Date", y = "Changes in Employment relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "4 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+
+ggplot(data = datEmpCategories, aes(x = date, y = employment, colour = category)) +
+  facet_wrap(~category) +
+  geom_line(size = 1) +
+  guides(color = "none") +
+  labs(title = "Changes in Employment by Category", x = "Date", y = "Changes in Employment relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "4 month", date_labels = " %b %y") +
+  theme_stata()
+
+```
+
+As can be seen in the graph, all categories show a significantly lower employment level in March/April compared to January. The leisure and hospitality category stands out in particular, as the employment level fell by more than 50%. While the employment level in the three sectors education and health, professional and business services and trade, transportation and utilities is slowly approaching its original level again, the one in leisure and hospitality remains significantly below it. 
+This is mainly due to two factors. First, travel and mobility were severely restricted during the COVID-19 pandemic. Secondly, due to the risk of infection, many hotels had to close temporarily and leisure activities could not take place.  Both reasons lead to the fact that the companies generate less profit and therefore have to lay off employees to compensate for the reduced revenues. In addition, employees are often no longer needed due to the closures (Baum et al., 2020). 
+
+#< award "Employment Expert Level 2"
+
+Congratulations you have reached the second level of employment expert. You are familiar with the developments of employment for different income quartiles and job categories during the COVID-19 pandemic. 
+#>
+
+c) In the last part of this exercise we look at how the number of job offers has changed during the pandemic.
+
+**Task 2.3.6** First load the data set `Burning Glass - National.rds` with the function `readRDS()` and save it in the variable `datJobs`. Then look at it with the command `head()`.
+
+```{r "6_c"}
+datJobs = readRDS("Burning Glass - National.rds")
+head(datJobs)
+```
+
+#< info "Burning Glass - National.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Burning Glass - National - Weekly.csv`
+
+Chetty et al. got this information from Burning Glass Technologies. It includes all job postings on more than 40.000 online boards in the U.S., with duplicate entries removed.
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `bg_posts`: Average level of job postings compared to January 2020
+
+- `category`: Specifies the category of the job
+
+- `job_postings`: Average level of job postings compared to January 2020 for the corresponding category
+#>
+
+The data contains information on the number of unique job postings from more than 40.000 job boards in the U.S.in the column `bg_posts`. In addition, the data set also provides the number of postings for the five different job categories:
+
+- manufacturing
+- financial activities
+- professional and business services
+- education and health services
+- leisure and hospitality
+
+However, we can see from the column `date` that the numbers are only available weekly and not daily.
+
+Let us first look at the changes in total job postings. We want to illustrate them graphically with the help of the `ggplot()` function.
+
+**Task 2.3.7** Fill in the missing parts of the code to create the desired graph.
+
+```{r "6_c_2"}
+#< fill_in
+ggplot(___, aes(x = ___, y= ___))+
+  geom_line(size = 1, colour = "darkgreen") +
+  labs(title = "Changes in Job Postings", x = "Date", y = "Changes in Job Postings relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "4 month", date_labels = " %b %y") +
+  theme_stata()
+#>
+
+ggplot(datJobs, aes(x = date, y= bg_posts))+
+  geom_line(size = 1, colour = "darkgreen") +
+  labs(title = "Changes in Job Postings", x = "Date", y = "Changes in Job Postings relative to January 2020 (%)") +
+  scale_x_date(date_breaks = "4 month", date_labels = " %b %y") +
+  theme_stata()
+```
+
+The number of job offers fluctuates widely over time. The strong fluctuations are due, among other things, to the fact that the data is only available weekly. At the beginning of the pandemic, the number of job offers dropped sharply. Not only do many people lose their jobs, but the search for a new job is difficult because of the decreasing number of job offers. This improves in the further course of the pandemic so that by July the level of January can be reached again. However, the supply of jobs decreases again significantly at the end of 2020, which could be due to the renewed increase in COVID-19 cases or to the fact that fewer people are hired during the Christmas season. In the new year, on the other hand, the job offers then rise steadily and in June even reach a level almost 30% higher than before the pandemic.
+
+We now look at how job postings have changed for the previously mentioned categories. For this, we need some functions of the package `dplyr`.
+
+#< info "Package dplyr (filter, group_by, summarize, arrange, pipe operator)"
+
+The package dplyr is of great use when working with data. It provides simple functions with which data can be manipulated and thus better evaluated. The following are important for the next tasks.
+
+- `filter()`: Filters data based on an expression  
+
+- `group_by()`: Takes an existing table and converts it into a grouped table where operations are performed by the specified group
+
+- `summarize()`: Reduces a data frame to a summary of one vector or value, often used in combination with `group_by()`
+
+- `arrange()`:  Orders the rows of a data frame
+
+- `Pipe operator (%>%)`: Used to express a sequence of multiple operations. Passes a value, or the result of an expression, into the next function call/expression. This can greatly simplify code and make operations more intuitive. It is indicated by the following character `%>%`.
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=dplyr
+
+#>
+
+First, we want to limit `datJobs` so that it only contains data from the beginning of the COVID-19 pandemic between 25 March 2020 and 14 April 2020. We store the new filtered data in the variable `JobCategories`.
+
+**Task 2.3.8** Complete the code using the function `filter()` to get the desired data set.
+```{r "6_c_3"}
+#< fill_in
+JobCategories = datJobs %>%
+  filter(___)
+#>
+JobCategories = datJobs %>%
+  filter(date >= "2020-03-25" & date <= "2020-04-14" )
+
+```
+
+We now generate an overview that displays in which category the job postings have decreased the most on average during the previously filtered period. We therefore group the change in job postings by category using the function `group_by()` and summarize the values for each category by calculating the mean with help of the function `summarize()`. We then sort this using `aggregate()` in ascending order according to the calculated mean.
+
+**Task 2.3.9** The required functions from the package `dplyr` are already given. Just fill in the gaps in the code to get the desired table.
+```{r "6_c_4"}
+#< fill_in
+JobPostings = JobCategories %>%
+  group_by(___) %>%
+  summarize(mean = ___) %>%
+  arrange(___)
+JobPostings
+#>
+JobPostings = JobCategories %>%
+  group_by(category) %>%
+  summarize(mean = mean(job_postings)) %>%
+  arrange(mean)
+JobPostings
+```
+
+The table clearly shows that the decline in job postings was strongest in the category leisure and hospitality, at over 55%. Thus, most people were laid off in this sector and at the same time, the job offers dropped sharply. This explains the retention of the employment level for this category below the baseline level.
+
+In this exercise, we found out that the employment level dropped sharply at the beginning of the pandemic. We noticed that especially the low-income workers lost their jobs, as their employment level dropped by almost 40% and did not return to the baseline level later on. In terms of industry, the leisure and hospitality category suffered the most. Not only were a particularly large number of people dismissed from their jobs but there was also a huge drop in job offers, which is why the employment level in this sector remains at a lower level.
+
+#< award "Employment Expert Level 3"
+
+Congratulations you have reached the third and last level of employment expert. You are familiar with the developments of the employment during the COVID-19 pandemic and you also know how the job offers for the various job categories have changed. 
+#>
+
+In *Exercise 2*, we examined how the COVID-19 pandemic has affected consumer spending, small business revenues, and employment. We found strong negative effects in all three areas.
+
+Consumer spending decreased most in the entertainment, arts, and recreation category. As a result of the lower revenues of these small businesses, most employees were laid off in the sector of leisure and hospitality. On the one hand, this was to compensate for the lost revenues, and on the other hand, many employees were no longer needed as a result of the closures of small companies.
+
+Concerning the different income groups, we examined that richer households reduced their consumer spending more than poorer households. This is partly due to the developments in the various categories. Thus, the revenues of small businesses have decreased more in areas with an average high income of residents.
+
+The government has taken various measures to counteract these negative effects. In the next exercise, we assess the effectiveness of one of these measures.
+
+
+## Exercise 3 -- Differences in Differences: Stimulus Payments to Households
+
+To counteract the economic downturns caused by the COVID-19 pandemic, the US government established the Coronavirus Aid, Relief, and Economic Security Act (CARES Act). It is aimed at supporting workers, families, industry sectors, and small businesses that have been particularly affected by the crisis. One measure of this act is stimulus payments to households. It consists of several direct payments to low-income households (Baker et al., 2020). Individuals earning less than 75,000\$ a year received a payment of 2400\$. Individuals earning up to 99,000\$ a year received proportionately less and those earning more than 99,000\$ were not included in this program (Chetty et al., 2020). The objective of these payments is to increase consumer spending and thus to stimulate production and employment.
+
+In this exercise, we use the Differences in Differences (DID) method to investigate how effective these payments have been. More specifically, we want to find out what effect the stimulus payments have had on the consumer spending of the subsidized households. Therefore we take again the data set from *Exercise 2.1* of Affinity Inc., as it contains the data on consumer spending for different income groups. In the first part of the exercise, we look at the basics of the method and prepare the data accordingly. By performing several small calculations, we get the first impression of how successful the measure was. In the second part of the exercise, we rate the effect of the payments by estimating a linear regression model using ordinary least squares estimation. Finally, we test it for day fixed effects.
+
+
+## Exercise 3.1 -- Background and Data Preparation
+
+
+The DID approach is used to investigate the causal effect of a treatment on a type of response. It addresses the problem that observational studies have to control for background changes in outcomes that occur over time (Dimick/Ryan, 2014). This is achieved through a pre/post assessment. The outcomes before and after treatment of two different groups are compared:
+
+- `Pre-treatment:` Period with no political intervention
+
+- `Post-treatment:` Period with an intervention in one group (study group)
+
+- `Study group:` Receives the treatment  
+
+- `Comparison group:` Does not receive the treatment but is experiencing the same trends  
+
+
+In our case, we examine the effect of the treatment stimulus payments to households on consumer spending. As mentioned before, the payments were only made to households with an annual income below 99.000\$.  As we do not have precise information on the consumer spending of the different household groups, we define our two groups as follows. For the values of the study group, we use the column `spend_all_q1` from our data set from Affinity Inc., as this includes the consumer spending of consumers living in ZIP codes with the lowest median income. Thus it contains most likely the consumers who received the stimulus payments. As data of the comparison group, we use the column `spend_all_q4` analogously. This includes the consumer spending of the people living in ZIP codes with the highest average income and therefore are least likely to have received the payments. For the sake of simplicity, in the following, we do not speak of ZIP codes with average high or low income, but of low- and high-income households. Both groups experienced the same trend in form of a downturn in consumer spending due to the COVID-19 pandemic. The majority of the payments were disbursed on 15 April 2020. Thus, we define the period from 1 April 2020 to 14 April 2020 as the pre-treatment phase and the period from 15 April 2020 to 30 April 2020 as the post-treatment phase. 
+
+
+To know if the treatment was successful, the DID estimator is calculated. If the estimator is equal to zero, there is no observable effect. A value greater (smaller) than zero implies a positive (negative) effect of the treatment (Dimick/Ryan, 2014).
+
+We first look at a graph showing the changes in consumer spending of the two groups before and after the treatment. We use the data set from *Exercise 2.1* from Affinity Inc. which has already been prepared for this purpose.
+
+**Task 3.1.1** Load the data frame called `Affinity - DID.rds` with the command `readRDS()` and store it in the variable `datDID`. Then look at `datDID` with `head()`.
+```{r "8_1"}
+datDID = readRDS("Affinity - DID.rds")
+head(datDID)
+```
+
+#< info "Affinity - DID.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Affinity - National - Daily.csv`
+
+Chetty et al. got this information from Affinity Solutions Inc., a company that aggregates consumer credit and debit card spending. They capture nearly 10% of debit and credit card spending in the U.S. 
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `income_quartile`: Gives the income quartile of the area in which the consumer lives
+
+- `spend`: Changes in spending for the specific income quartile
+
+- `period`: Specified whether the date is in the pre- or post-phase
+
+- `mean`: Indicates the average value of the spending changes for the respective income in the corresponding period
+
+#>
+
+`DatDID` contains the data from *Exercise 2.1* in a long format. Unnecessary columns have been removed and further columns have been added. The column `period` specifies whether the respective date is in the pre- or post-phase. The column `mean` indicates the average value of the spending changes for the respective income in the corresponding period. Thus, there are four different values in the column `mean`.
+
+#< info "Package ggplot2/ggthemes 5"
+
+The `ggplot2` package aims to visualize data. The fundamental idea of the package is that a graph can be represented by several layers. The function `ggplot()` starts the basic layer, which can be extended with a "+" by other layers. The ones which we will use in the next tasks will now be explained briefly.
+
+- `ggplot()`: Specifies which data set should be used. With the extension aes() the axes of the graph and certain other aesthetics can be defined
+
+- `geom_line()`: With the command geom_ the type of graph can be set. Geom_line() represents a line chart
+
+- `labs()`: Can be used to add a title and the axis labels to the graph
+
+- `annotate()`: Useful for adding small annotations such as labels
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggplot2
+
+The package `ggthemes` is useful, for visually enhancing our graphs by adding a theme to them. In this problem set, we always apply `theme_stata()`. It can be added to the graph like a layer by using a "+".
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=ggthemes
+#> 
+
+**Task 3.1.2** The following code represents the changes graphically. It consists of the basic `ggplot()` function that specifies the data and the axes. In addition, two `geom_line()` functions are used to plot the values for our pre and post-periods for each group. Using two further `geom_line()` functions, the mean values are plotted once for the pre-phase for both groups and once for the post-phase for both groups. Run the code and look at the graph.
+```{r "8_2",fig.height=6}
+#< task
+datpre = filter(datDID, period=="pre")
+datpost = filter(datDID, period=="post")
+
+ggplot(datDID,aes(x = date,y = spend, color = income_quartile, group = income_quartile)) + 
+  geom_line(data = datpre, size = 1) +
+  geom_line(data = datpost, size = 1) +
+  geom_line(aes(y = mean),color="black", data=datpre, size=1) +
+  geom_line(aes(y = mean),color="black", data=datpost, size=1) +
+  annotate("text", x = as.Date("2020-04-08"), y = -0.2, label = "y.pre.inclow\n-0,249")+
+  annotate("text", x = as.Date("2020-04-08"), y = -0.3, label = "y.pre.inchigh\n-0,342")+
+  annotate("text", x = as.Date("2020-04-23"), y = -0.1, label = "y.post.inclow\n-0,142") +
+  annotate("text", x = as.Date("2020-04-23"), y = -0.25, label = "y.post.inchigh\n-0,303") +
+   labs(title = "Changes in Consumer Spending by Income Quartile", x = "Date", y = "Changes in Consumer Spending relative to January 2020 (%)") +
+  theme_stata()
+#>
+```
+
+In the graph, we see four different sections. The consumer spending changes for low-income households are shown in red while the values for high-income households are displayed in blue. The two lines are divided into two halves. This cut represents the implementation of the treatment stimulus payments. The black lines indicate the average values of the changes in consumer spending in the particular phase for the two groups. These mean values are specified in the graph above the corresponding line.  
+
+
+- `y.pre.inclow:` Mean value of changes in consumer spending of low-income households during pre-phase  
+
+- `y.pre.inchigh:` Mean value of changes in consumer spending of high-income households during pre-phase  
+
+- `y.post.linclow:` Mean value of changes in consumer spending of low-income households during post-phase  
+
+- `y.post.inchigh:` Mean value of changes in consumer spending of high-income households during post-phase  
+
+
+These are the values for the changes in consumer spending before and after the stimulus payments to low-income households. Make a guess about the effect of the treatment.
+
+#< quiz "Treatment Effect"
+
+question: What treatment effect do you expect based on the graph?
+sc:
+   - positive treatment effect*
+   - negative treatment effect
+   - treatment has no effect
+  
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+#< quiz "DID Estimator"
+
+question: What will be the value of the DID estimator?
+sc:
+   - DID = 0
+   - DID > 0*
+   - DID < 0
+ 
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+In the graph, it is easy to see that after the treatment consumer spending of low-income households increased more than that of high-income households compared to their pre-treatment level, which signifies a positive effect of the treatment. For this reason we expect a DID estimator > 0. We calculate the exact difference in the following.
+
+When calculating the DID estimator, two differences are important. First, the difference of the outcome after the treatment versus before the treatment in the study group, which means in our case the consumer spending before versus after the stimulus payments for low-income households (`y.post.inclow`-`y.pre.inclow`). Second,  the difference of the outcome before versus after the treatment in the comparison group that did not receive the treatment, in our example the consumer spending before versus after the treatment for high-income households (`y.post.inchigh`-`y.pre.inchigh`). The DID estimator is then calculated follows:
+
+$$
+DID = (y.post.inclow-y.pre.inclow) - (y.post.inchigh-y.pre.inchigh)
+$$
+
+**Task 3.1.3** In order to calculate the DID Estimator, we must first store the correct values for the variables `y.post.inclow`, `y.pre.inclow`, `y.post.inchigh` and `y.pre.inchigh`. To do this, use the given values in the graph and store them in the corresponding variables. 
+
+```{r "8_3"}
+#< fill_in
+y.post.inclow = ___
+y.pre.inclow = ___
+y.post.inchigh = ___
+y.pre.inchigh = ___
+#>
+
+y.post.inclow = -0.142
+y.pre.inclow = -0.249
+y.post.inchigh = -0.303
+y.pre.inchigh = -0.342 
+```
+
+**Task 3.1.4** We can now calculate the DID Estimator. Therefore enter the correct formula.
+
+```{r "8_4"}
+#< fill_in
+DID = ___
+DID
+#>
+DID = (y.post.inclow-y.pre.inclow) -(y.post.inchigh-y.pre.inchigh)
+DID
+```
+
+We get a value of 0.068, which confirms our previous assumptions. The treatment stimulus payments has had a positive effect on consumer spending of low-income households, since the DID estimator is positive.
+
+This result can be interpreted as follows. If we look at the difference between `y.post.inclow` and `y.pre.inclow`, we get a value of 0.107. This indicates that consumer spending of low-income households increased by 10.7 percentage points (%P) in the post-phase after treatment compared to the pre-phase. The second difference between `y.post.inchigh` and `y.pre.inchigh` is only 0.039. This implies that consumer spending of high-income households increased by 3.9%P after the pre-phase, even though they did not receive any treatment. To correct the effect of the treatment for these time effects, the value of the group without treatment is now subtracted from that of the group with treatment. 10.7%P - 3.9%P results in a value of 6.8%P. This corresponds to our DID estimator. So, we can conclude that the consumer spending of the low-income households increased by 6.8%P more than that of the high-income households, which means that the treatment was successful.
+
+However, one should always be careful with the interpretation, as the DID method assumes that parallel trend takes place for both groups and that shocks affect them equally. This assumes a strong similarity of the groups (Dimick/Ryan, 2014). The parallel trends assumption is largely fulfilled in our model, as the two curves show a similar trend - a downturn. Nevertheless, it is questionable whether our two groups are sufficiently similar. High- and low-income households differ in the goods they buy. For example, while both need basic food items, richer households often spend their income on luxuries such as leisure activities. Since these cannot be taken up to a normal extent even during the later course of the COVID-19 pandemic, they have no opportunity to increase their spending in this area.
+
+#< award "DID Expert Level 1"
+
+Congratulations you have reached the first level of DID expert. With the help of simple calculations, you have proven a positive effect of the government measure stimulus payments to households.
+
+#>
+
+We now look at how to put a data set into the right form to perform such a DID analysis. To do this, we use the same data set as we loaded in *Exercise 2.1* and prepare it in such a way that it corresponds to the data set `Affinity - DID.rds` used at the beginning of this exercise.
+
+**Task 3.1.5** Load the data set `Affinity - National.rds` with the command `readRDS()` and store it in the variable `datSpending`. Then look again at the first six rows with `head()`.
+```{r "8_5"}
+datSpending = readRDS("Affinity - National.rds")
+head(datSpending)
+```
+
+#< info "Affinity - National.rds"
+
+Source: Chetty et al. (2020)  
+
+It is based on the following file from the paper’s database: `Affinity - National - Daily.csv`
+
+Chetty et al. got this information from Affinity Solutions Inc, a company that aggregates consumer credit and debit card spending. They capture nearly 10% of debit and credit card spending in the U.S. 
+
+The data set has already been pre-processed in several steps. For example, columns that were not necessary for the problem set were removed and data types were changed. The exact R code for the pre-processing is available on the GitHub page.
+
+- `spend_all`: Changes in spending in all merchant category codes
+
+- `spend_all_q1`: Changes in spending by consumers living in ZIP codes with median income in quartile 1
+
+- `spend_all_q2`: Changes in spending by consumers living in ZIP codes with median income in quartile 2
+
+- `spend_all_q3`: Changes in spending by consumers living in ZIP codes with median income in quartile 3
+
+- `spend_all_q4`: Changes in spending by consumers living in ZIP codes with median income in quartile 4
+
+- `spend_aap`: Changes in spending in apparel and accessories
+
+- `spend_acf`: Changes in spending on accommodation and food service
+
+- `spend_aer`: Changes in spending in arts, entertainment, and recreation
+
+- `spend_gen`: Changes in spending in general merchandise stores
+
+- `spend_grf`: Changes in spending in grocery and food store
+
+- `spend_hcs`: Changes in spending in health care and social assistance
+
+- `spend_hic`: Changes in spending in home improvement centers
+
+- `spend_sgh`: Changes in spending on sporting goods and hobby
+
+- `spend_tws`: Changes in spending in transportation and warehousing
+
+#>
+
+The data set includes consumer spending values on a daily basis. In addition, it differentiates them according to categories and income. We process the data set in several steps so that it only contains the data we need, to apply the DID method. First, we remove the unnecessary columns. Our study group values correspond to the column ``spend_all_q1`, as it contains the consumer spending for people living in areas with low median income. The values in the column `spend_all_q4` are accordingly the values for the comparison group. The remaining columns which contain the values for the different categories and the total consumer spending are not required for our analysis. We remove them in the next step. 
+
+For further processing of the data set, we need various functions from the packages `dplyr` and `tidyr`. We can use the package `tidyverse` for this purpose. It is a collection of R packages that are used for data science and thus contains, among others, the packages `dplyr`, `tidyr`, and also the package `ggplot2`.
+
+**Task 3.1.6** Load the package `tidyverse` with the command `library()`.
+```{r "8_6"}
+library(tidyverse)
+```
+
+#< info "Package tidyverse (select, filter, mutate, pivot_longer, group_by)"
+
+The tidyverse package is a collection of different packages designed for data science. This includes the packages `ggplot2`, `dplyr`, `tidyr`, `readr`, `purrr`, `tibble`, `stringr`, `forcats`. The following functions are important for the next tasks.
+
+- `select()`: Helps you to keep the variables that are relevant
+
+- `filter()`: Filters data based on an expression  
+
+- `mutate()`:  Adds new variables that are functions of existing variables  
+
+- `pivot_longer()`: Lengthens a data set by removing columns and adding rows
+
+- `group_by()`: Takes an existing table and converts it into a grouped table where operations are performed by the specified group
+
+- `Pipe operator (%>%)`: Used to express a sequence of multiple operations. Passes a value, or the result of an expression, into the next function call/expression. This can greatly simplify code and make operations more intuitive. It is indicated by the following character `%>%`.
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=tidyverse
+
+#>
+Now we can choose the columns we need with the command `select()`.
+
+**Task 3.1.7** Fill in the missing parts of the code to create a new data set, which contains the columns `date`, `spend_all_q1`, and `spend_all_q4` from `datSpending`. 
+```{r "8_7"}
+#< fill_in
+datSpending1 = datSpending %>%
+  select(___)
+
+head(datSpending1)
+#>
+datSpending1= datSpending %>%
+  select(date, spend_all_q1, spend_all_q4)
+
+head(datSpending1)
+```
+
+We have now created a data set that only contains the required columns. In the next step, we want to limit it to the pre and post treatment phase from 1 April 2020 to 30 April 2020.
+
+**Task 3.1.8** Fill in the argument of the function `filter()` from the package `dplyr` to limit the data to the desired time.
+```{r "8_8"}
+#< fill_in
+datSpending2 = filter(datSpending1, ___ &  ___ )
+
+head(datSpending2)
+#>
+datSpending2 = filter(datSpending1, date >= "2020-04-01" & date <= "2020-04-30" )
+
+head(datSpending2)
+```
+
+Great, we have the correct data for the desired time period. We now want to transform it into a long format. Therefore we keep the column `date` and combine the columns `spend_all_q1` and `spend_all_q4` as column `income_quartile`. The value of `income_quartile` should be stored in the new column `spend`. We use the function `pivot_longer()` again for this purpose.
+
+**Task 3.1.9** A part of the code is already provided. Fill in the missing parts.
+```{r "8_9"}
+#< fill_in
+datSpending3 = pivot_longer(datSpending2, c(___), names_to = ___, values_to = ___)
+
+head(datSpending3)
+#>
+
+datSpending3 = pivot_longer(datSpending2, c(2,3), names_to = "income_quartile", values_to = "spend")
+
+head(datSpending3)
+```
+
+If we now look at our new `datSpending3` data set, we notice that it now has exactly twice as many entries as our previous data set `datSpending2`. This is because each date now exists twice, once for the low-income values and once for the high-income values.
+
+In order to recognize to which treatment phase, the respective value belongs, we add the column `period` in the next step, which identifies the row with pre or post. We use the function `ifelse()` to mark all dates before 15 April 2020 with pre and the others with post.
+
+**Task 3.1.10** Most of the code is already given. The function `mutate()` is used to add the new column `period`. Complete the argument of the `ifelse()` function to create the desired column.
+```{r "8_10"}
+#< fill_in
+datSpending4  = datSpending3 %>%
+  mutate(period = ifelse(___))
+
+head(datSpending4)
+#>
+datSpending4 = datSpending3 %>%
+  mutate(period = ifelse(date<"2020-04-15", "pre", "post"))
+
+head(datSpending4)
+```
+
+We have just added a column that tells us to which treatment phase the values belong. Next, we want to calculate the average value of the changes in consumer spending per period and per income quartile. We store this average value in the new column `mean`. We can implement this by using the functions `group_by()` and `mutate()` from the package `dplyr`.
+
+**Task 3.1.11** Complete the argument for the function `group_by()` and fill in the formula for calculating the mean.
+```{r "8_11"}
+#< fill_in
+datDID = datSpending4 %>%
+  group_by(___) %>%
+mutate( mean = ___)
+
+head(datDID)
+#>
+datDID = datSpending4 %>%
+  group_by(income_quartile, period) %>%
+mutate( mean = mean(spend))
+
+head(datDID)
+```
+
+Great we have now prepared the data set in such a way that it corresponds to `Affinity - DID.rds`. In the next part of the exercise, we use it to estimate the DID estimator again by regression. Regression offers a different approach that is more commonly used than the simple subtraction we performed in this exercise, as it allows the estimator to be adjusted for specific factors. Furthermore with regression it is possible to get standard errors in a simple fashion. 
+
+#< award "Data Manipulator Level 3"
+
+Congratulations you have reached the third and last level of data manipulator. You have used various functions of the package `tidyverse` to prepare a data set in different steps for analysis.
+#>
+
+## Exercise 3.2 -- DID Estimation with OLS
+
+In this exercise, we assess the DID estimator using ordinary least squares (OLS) regression. We do not delve deeper into the basics of regression. For more information on regression and the OLS methodology see Greene (2020). To estimate the DID estimator, we use the following regression formula.
+
+$$
+y_{i,t} = \beta_{0} + \beta_{1}T_{i} + \beta_{2}P_{t}+\beta_{3}T_{i}P_{t} + \varepsilon_{i,t}
+$$
+- i references the group
+
+- t references the date
+
+- $y_{i,t}$ dependent variable
+
+- $T_{i}$ dummy variable that indicates whether the observation belongs to study or comparison group (study group: 1, comparison group: 0)
+
+- $P_{t}$ dummy variable that indicates whether the observation belongs to pre- or post-period (post: 1, pre: 0)
+
+- $T_{i}P_{t}$ interaction term
+
+- $\varepsilon_{i,t}$ error term
+
+The regression formula consists of the dependent variable $y_{i,t}$ which in our case represents the changes in consumer spending and the three independent variables $T_{i}$, $P_{t}$, $T_{i}P_{t}$. The dummy variable $T_{i}$ indicates whether the observation is from the group with or without treatment, i. e., from low-income households or high-income households. The second dummy variable $P_{t}$ determines whether the observation occurred in the pre- or post-phase, i.e., after or before the stimulus payments on April 15. The interaction term $T_{i}P_{t}$ specifies which observations took place in the post-phase and are from the group that received the treatment. Hence, these are observations of low-income households from April 15 until April 30.
+
+We now want to interpret $\beta_{1}$, $\beta_{2}$ and $\beta_{3}$ to find out which one gives us the DID estimator. For this purpose, answer the following questions.
+
+#< quiz "Interpretation of the Coefficients I"
+
+question: What measures the coefficient $\beta_{1}$?
+sc:
+
+   - gap between the comparison group and the study group before the treatment*
+   - gap between the comparison group and the study group after the treatment
+   - the gap between the pre and post treatment values for the comparison group
+   - the gap between the pre and post treatment values for the study group
+   - the treatment effect
+   
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+#< quiz "Interpretation of the Coefficients II"
+
+question: What measures the coefficient $\beta_{2}$?
+sc:
+   - gap between the comparison group and the study group before the treatment
+   - gap between the comparison group and the study group after the treatment
+   - the gap between the pre and post treatment values for the comparison group
+   - the gap between the pre and post treatment values for the study group*
+   - the treatment effect
+  
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+#< quiz "Interpretation of the Coefficients III"
+
+question: What measures the coefficient $\beta_{3}$??
+sc:
+   - gap between the comparison group and the study group before the treatment
+   - gap between the comparison group and the study group after the treatment
+   - the gap between the pre and post treatment values for the comparison group
+   - the gap between the pre and post treatment values for the study group
+   - the treatment effect*
+    
+success: Great, your answer is correct!
+failure: Try again.
+#>
+
+In our DID regression $\beta_{3}$ is the coefficient of interest, as it measures the effect of the treatment. In order to perform the regression, we first modify our data set `datDID`, as we need to create the dummy variables and the interaction term.
+
+In the first step we want to create our dummy variable $T_{i}$. This variable takes the value 1 for observations of the study group and the value 0 for observations of the comparison group. To do this, we add the new column `treat` to our data set. For this purpose we use the function `ifelse()`.
+
+**Task 3.2.1** Complete the function `ifelse()` to add the value 1 for the values of our study group low-income households and the value 0 for the values of our comparison group high-income households.
+```{r "9_1"}
+#< fill_in
+datDID = readRDS("Affinity - DID.rds")
+
+datDID$treat = ifelse(___)
+
+head(datDID)
+#>
+datDID = readRDS("Affinity - DID.rds")
+
+datDID$treat = ifelse(datDID$income_quartile =="spend_all_q1",1,0)
+
+head(datDID)
+```
+
+Now we have to create our second dummy variable $P_{t}$. This variable indicates the value 0 for observations from the pre-period and the value 1 for observations from the post-period. We therefore add the new column `post` to our data set.
+
+**Task 3.2.2** Complete the function `ifelse()` to add the value 1 for the observations of the post-period and the value 0 for the observations of the pre-period.
+```{r "9_2"}
+#< fill_in
+datDID$post = ifelse(___)
+
+head(datDID)
+#>
+datDID$post = ifelse(datDID$period =="post",1,0)
+
+head(datDID)
+```
+
+Finally, we calculate the values for the interaction term $T_{i}P_{t}$. We save them in the new column `treat_post`.
+
+**Task 3.2.3** Complete the formula for calculating the interaction term.
+```{r "9_3"}
+#< fill_in
+datDID$treat_post = ___
+
+head(datDID)
+#>
+datDID$treat_post = datDID$treat *datDID$post
+
+head(datDID)
+```
+
+We can now perform the DID regression. Since performing the regression manually is too time-consuming, we use the function `lm()`, which is provided by R, to simplify the process. It can carry out regression, and analysis of variance and covariance. The function is specifically used to fit linear models.
+
+**Task 3.2.4** Part of the regression formula is already provided. Complete the independent variables and then use the command `summary()` to display the regression results. 
+```{r "9_4"}
+#< fill_in
+reg = lm(spend ~ ___, data=datDID)
+___
+#>
+reg = lm(spend ~ treat + post + treat_post, data=datDID)
+summary(reg)
+```
+
+The function `summary()` gives an overview of the results of the regression. Of particular interest to us here are the estimates of the beta coefficients. We obtain the following values for the three coefficients 
+
+- $\beta_{1} = 0.093$
+
+- $\beta_{2} = 0.039$
+
+- $\beta_{3} = 0.069$
+
+Thus, the gap between the comparison group and the study group before the treatment ($\beta_{1}$) is approximately 9.3 %P. The gap between the pre and post treatment values for the study group ($\beta_{2}$) is about 3.9%P. The treatment effect ($\beta_{3}$), is rounded to a value of 0,69 and thus equals the value we calculated by subtraction in the previous part of the exercise. As we can see, these values are significant at the 0.1% level. We have thus once again demonstrated a positive effect of the treatment. The stimulus payments have increased the consumer spending of low-income households by 6.9%P.
+
+#< award "DID Expert Level 2"
+
+Congratulations you have reached the second and last level of DID expert. You have estimated the effect of the stimulus payments measure using OLS regression.
+
+#>
+
+We have now calculated the DID estimator in two different ways. While the first method, the simple subtraction, is quicker and easier to perform and also requires less pre-processing, regression offers two key advantages. Firstly, the standard error and the significance of the estimator can be determined. Secondly, certain effects can be controlled. We want to control our regression for day fixed effects in the following. 
+
+Instead of using the dummy variable $P_{t}$ to specify the period in our regression, we can also create a separate dummy variable for each day. This would mean that instead of using $P_{t}$, we would create thirty dummy variables, one for each day. Such dummies that contain many levels are often called fixed effects. However, creating a large number of dummy variables is very complex. An easier way to control fixed effects is to use the package `lfe`. This allows us to perform a regression with fixed effects.
+
+**Task 3.2.5** Load the package `lfe` by using the command `library()`.
+```{r "9_5"}
+library(lfe)
+```
+
+#< info "Package lfe (felm)"
+
+The package allows to estimate linear models with several fixed group effects. By using the method of alternating projections it removes multiple group effects before estimating the coefficients with OLS.
+
+- `felm()`: Is used to fit linear regression models with multiple group fixed effects
+
+For more detailed information about the package see: https://CRAN.R-project.org/package=lfe
+#>
+
+We now want to run the regression by controlling for day fixed effects. For this we can use the function `felm()` from the just loaded package `lfe`. The independent variables in the function can be specified as before. The fixed effects are specified after the "|". It should be noted, however, that the independent variables change in comparison to our previous regression, as our dummy variable $P_{t}$ becomes obsolete due to the use of day fixed effects.
+
+**Task 3.2.6** Complete the regression formula to control for day fixed effects. Then look at the regression results with the function `summary()`.
+```{r "9_6"}
+#< fill_in
+reg2 = felm(spend ~ ___ | ___, data = datDID)
+___
+#>
+reg2 = felm(spend ~ treat_post + treat | date, data = datDID)
+summary(reg2)
+```
+
+As we can see in the overview, we estimate the same treatment effect, a value of 0.069, as in our previous regression.
+
+In this exercise, we have proven a positive effect of the treatment stimulus payments to households on the consumer spending of the study group. The stimulus payments have increased the consumer spending of low-income households by 6.9%P. We calculated this in two different ways. First, we computed it by subtracting different averages. Then we estimated it using OLS regression. We took advantage of the regression and controlled for day fixed effects. Here, we again obtained the same result. We have seen how useful the DID method can be to understand the effect of an intervention.
+
+#< award "Economic Impacts of COVID-19"
+
+Congratulations! You have successfully completed the problem set Economic Impacts of COVID-19.
+
+#>
+
+## Exercise 4 -- Conclusion
+
+
+In this problem set, we examined how the COVID-19 pandemic has affected the U.S. economy. With the help of various R packages and their functions, we have prepared, analyzed, and illustrated data. In *Exercise 1*, we first looked at how the pandemic spread across the country. We learned how quickly the number of cases increased until they finally reached a value of over 200.000 daily infections. Particularly alarming is the number of deaths, which in the U.S. alone equals an overall value of 500.000. But there is hope for an improvement with the vaccinations that started in mid-December. In June 2021, almost 46% of the population is already fully vaccinated.
+
+In *Exercise 2*, we examined the impact of these developments on consumer spending, small business revenues, and employment. Especially during the beginning of the pandemic, we have seen sharp declines in all three areas. Consumer spending fell most in the category arts, entertainment, and recreation as NPIs have curtailed consumption in this sector, among others, the most. Other categories such as grocery and food stores even recorded a strong increase. Given these developments, it is not surprising that consumer spending for high-income households has fallen more than that of low-income households. These developments made many workers redundant, which caused the employment level to collapse. Again, the leisure and hospitality sector was hit the hardest. Not only did the employment level fall the most in this area, but the chance of finding a new job became more difficult due to the sharp decline in job offers.
+
+Especially at the beginning of the pandemic, the economy had to suffer a lot. As the crisis progressed, most values returned to their normal levels, with a few exceptions. The reasons for this are manifold. Measures from the CARES Act served to stabilize the economy again. In *Exercise 3*, we took a closer look at the effect of the measure stimulus payments to households. Households with an annual income below 99,000\$ received several small payments from the government. This was intended to stimulate consumer spending and thus production and employment. We were able to demonstrate a positive effect of the measure for low-income households by using the DID method. Other reasons could also speak for a recovery of the economy. For example,  COVID-19 vaccinations could have had a positive effect on the economy, as they reduced the risk of infection and thus anxiety among the population. Currently, there are still few studies on this, as the vaccinations are still ongoing. But these will follow in the near future.
+
+I hope you had fun working on the problem set and learned more about the economic impact of COVID-19.
+
+## Exercise 5 -- References
+
+
+### Bibliography
+
+- Alexander, D., & Karger, E. (2020). Do stay-at-home orders cause people to stay at home? Effects of stay-at-home orders on consumer behavior.
+
+- Baker, S. R., Farrokhnia, R. A., Meyer, S., Pagel, M., & Yannelis, C. (2020). Income, liquidity, and the consumption response to the 2020 economic stimulus payments (No. w27097). National Bureau of Economic Research.
+
+- Bareket-Bojmel, L., Shahar, G., & Margalit, M. (2020). COVID-19-related economic anxiety is as high as health anxiety: findings from the USA, the UK, and Israel. International journal of cognitive therapy, 1-9.
+
+- Baud, D., Qi, X., Nielsen-Saines, K., Musso, D., Pomar, L., & Favre, G. (2020). Real estimates of mortality following COVID-19 infection. The Lancet infectious diseases, 20(7), 773.
+
+- Baum, T., Mooney, S. K., Robinson, R. N., & Solnet, D. (2020). COVID-19’s impact on the hospitality workforce–new crisis or amplification of the norm?. International Journal of Contemporary Hospitality Management.
+
+- Bureau of Economic Analysis. (2020). Gross domestic product (third estimate), corporate profits, and GDP by industry, fourth quarter and year 2020. U.S. Department of Commerce.
+
+- Cajner, T., Crane, L. D., Decker, R. A., Grigsby, J., Hamins-Puertolas, A., Hurst, E., & Yildirmaz, A. (2020). The US labor market during the beginning of the pandemic recession (No. w27159). National Bureau of Economic Research.
+
+- Chetty, R., Friedman, J. N., Hendren, N., & Stepner, M. (2020). The economic impacts of COVID-19: Evidence from a new public database built using private sector data (No. w27431). National Bureau of Economic Research.
+
+- Daly, M., & Robinson, E. (2020). Willingness to vaccinate against COVID-19 in the US: Longitudinal evidence from a nationally representative sample of adults from April-October 2020. medRxiv.
+
+- Dimick, J. B., & Ryan, A. M. (2014). Methods for evaluating changes in health care policy: the difference-in-differences approach. Jama, 312(22), 2401-2402.
+
+- Greene, W. H. (2020).  Econometric analysis (8th edition). Pearson Education Limited: London, United Kingdom.
+
+- Kronthaler, F., & Zöllner, S. (2021). Data Analysis with RStudio. Springer: Berlin/Heidelberg, Germany.
+
+- Loxton, M., Truskett, R., Scarf, B., Sindone, L., Baldry, G., & Zhao, Y. (2020). Consumer behaviour during crises: preliminary research on how coronavirus has manifested consumer panic buying, herd mentality, changing discretionary spending and the role of the media in influencing behaviour. Journal of risk and financial management, 13(8), 166.
+
+- Lynch, C. J., & Gore, R. (2021). Application of one-, three-, and seven-day forecasts during early onset on the COVID-19 epidemic dataset using moving average, autoregressive, autoregressive moving average, autoregressive integrated moving average, and naïve forecasting methods. Data in Brief, 35, 106759.
+
+- Singh, S., Shaikh, M., Hauck, K., & Miraldo, M. (2021). Impacts of introducing and lifting nonpharmaceutical interventions on COVID-19 daily growth rate and compliance in the United States. Proceedings of the National Academy of Sciences, 118(12).
+
+- Sommeiller, E., Price, M., & Wazeter, E. (2016). Income inequality in the US by state, metropolitan area, and county. Economic Policy Institute, 16, 3.
+
+- World Health Organization. (2020). Coronavirus disease 2019 (COVID-19) situation report-51. 
+
+- Zhou, P., Yang, X. L., Wang, X. G., Hu, B., Zhang, L., Zhang, W., ... & Shi, Z. L. (2020). A pneumonia outbreak associated with a new coronavirus of probable bat origin. nature, 579(7798), 270-273.
+
+### Websites
+
+- BBC. (2020). First Covid vaccine is administered in the US. URL: https://www.bbc.com/news/av/world-us-canada-55307642 (last accessed on: 02.08.2021).
+
+- Our World in Data. (2021). Coronavirus (COVID-19) Deaths. URL: https://ourworldindata.org/covid-deaths#deaths-from-covid-19-background (last accessed on: 02.08.2021).
+
+- Statista. (2019). Median household income in the top 25 most populated cities in the United States in 2019. URL: https://www.statista.com/statistics/205609/median-household-income-in-the-top-20-most-populated-cities-in-the-us/ (last accessed on: 02.08.2021).
+
+- World Health Organization. (2021). WHO Coronavirus (COVID-19) Dashboard. URL: https://covid19.who.int/ (last accessed on: 01.04.2021).
+
+### Data
+
+- Chetty, R., Friedman, J. N., Hendren, N., & Stepner, M. (2020). The economic impacts of COVID-19: Evidence from a new public database built using private sector data (No. w27431). National Bureau of Economic Research. URL: https://github.com/OpportunityInsights/EconomicTracker  
+
+- Mathieu, E., Ritchie, H., Ortiz-Ospina, E., Roser, M., Hasell, J., Appel, C., ... & Rodés-Guirao, L. (2021). A global database of COVID-19 vaccinations. Nature human behaviour, 1-7. URL: https://github.com/owid/covid-19-data/blob/master/public/data/README.md
+
+### R Packages
+
+- Arnold, J. B. (2021). ggthemes: Extra themes, scales and geoms for 'ggplot2'. R package version 4.2.4. URL: https://CRAN.R-project.org/package=ggthemes
+
+- Gaure, S. (2021). lfe: Linear group fixed effects. R package version 2.8-6. URL:  https://CRAN.R-project.org/package=lfe
+
+
+- Kranz, S. (2020). RTutor: Interactive R problem sets with automatic testing of solutions and automatic hints. R package version 2020.11.25. URL: https://github.com/skranz/RTutor
+
+- Lamstein, A. (2020). choroplethr: Simplify the creation of choropleth maps in R. R package version 3.7.0. URL: https://CRAN.R-project.org/package=choroplethr
+
+- Wickham, H., François, R., Henry, L., & Müller, K. (2021). dplyr. A grammar of data manipulation. R package version 1.0.4. URL: https://CRAN.R-project.org/package=dplyr
+
+- Wickham, H. (2016). ggplot2: Elegant graphics for data analysis. R package version 3.3.5. URL:  https://CRAN.R-project.org/package=ggplot2 
+
+- Wickham, H. (2020). tidyr: Tidy messy data. R package version 1.1.2. URL: https://CRAN.R-project.org/package=tidyr
+
+- Wickham, H., Averick, M., Bryan, J., Chang, W., D'Agostino McGowan, L., François, R., ... & Yutani, H. (2019). tidyverse: Welcome to the tidyverse. R package version 1.3.1. URL: https://CRAN.R-project.org/package=tidyverse
+
+
+  
+ 
+
+
